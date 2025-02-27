@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const mainRouter = require('./routers/index.js');
+const mainRouter = require('./routes/index.js');
 const {NOT_FOUND,SERVER_ERROR} = require('./utils/errors.js');
 
 const {PORT = 3001, BASE_PATH} = process.env;
