@@ -36,29 +36,32 @@ const getClothingItem = (req, res) => {
 
 // Create a new clothing item
 const createClothingItem = (req, res) => {
+    console.log(`"Create Clothing Item"\nIncoming Request: ${req.body}\n\n`);
+
     if(!req.user || !req.user._id) {
         return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
     }
 
     const {name, weather, imageUrl} = req.body;
+
     ClothingItem.create({name, weather, imageUrl, owner: req.user._id})
     .then(newItem => {
         res.status(201).send(newItem);
     })
     .catch(err => {
-        let statusCode = SERVER_ERROR; // Default to Internal Server Error
+       console.error("Create Item Error: ", err);
+       
+        // Mongoose Validation Error (e.g. required field missing)
+        if(err.name === "ValidationError") {
+            return res.status(BAD_REQUEST).send({message: "Invalid clothing item data"});
+        }
 
-            // Mongoose Validation Error (e.g. required field missing)
-            if(err.name === "ValidationError") {
-                return res.status(BAD_REQUEST).send({message: "Invalid clothing item data"});
-            }
+        // Duplicate key error (e.g. unique field conclicts)
+        if(err.code === 11000) {
+            return res.status(CONFLICT).send({message: "Clothing item already exists"});
+        }
 
-            // Duplicate key error (e.g. unique field conclicts)
-            if(err.code === 11000) {
-                return res.status(CONFLICT).send({message: "Clothing item already exists"});
-            }
-
-            res.status(statusCode || SERVER_ERROR).send({message: err.message});
+        res.status(statusCode || SERVER_ERROR).send({message: err.message});
     });
 }
 
