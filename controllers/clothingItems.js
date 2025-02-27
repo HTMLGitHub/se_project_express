@@ -80,11 +80,11 @@ const deleteClothingItem = (req, res) => {
 
 // Like a clothing item
 const likeItem = (req, res) => {
+    console.log(`Like request for Item ID: ${req.params.itemId}`);
+
     if(!req.user || !req.user._id) {
         return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
-    }
-
-    console.log(`Like request for Item ID: ${req.params.itemId}`);
+    }    
 
     ClothingItem.findByIdAndUpdate(req.params.itemId, {
         $addToSet: {
@@ -105,6 +105,8 @@ const likeItem = (req, res) => {
 
     // Dislike (unlike) a clothing item
     const dislikeItem = (req, res) => {
+        console.log(`UnLike request for Item ID: ${req.params.itemId}`);
+
         if(!req.user || !req.user._id) {
             return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
         }
