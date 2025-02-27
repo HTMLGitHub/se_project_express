@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
+const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require("../utils/errors");
 
 // Get all users
 const getUsers = (req, res) => {
@@ -19,15 +19,18 @@ const getUser = (req, res) => {
 
     User.findById(userId)
         .orFail(() => {
-            const error = Error("User not found");
-            error.status = NOT_FOUND;
-            throw error;
+            throw createError("User not found", NOT_FOUND);
         })
         .then(user => {
             res.status(200).send(user);
         })
         .catch(err => {
             console.error(`\n"Get User by ID"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
+
+            if(err.name === "CastError") {
+                return res.status(BAD_REQUEST).send({message: "Invalid User ID Format"});
+            }
+
             res.status(err.status || SERVER_ERROR).send({message: err.message || "Internal Server Error"});
         });
 };
@@ -41,20 +44,17 @@ const createUser = (req, res) => {
             res.status(201).send(newUser);
         })
         .catch(err => {
-            let statusCode = SERVER_ERROR; // Default to Internal Server Error
-
             // Mongoose Validation Error (e.g. required field missing)
             if(err.name === "ValidationError") {
-                statusCode = BAD_REQUEST;
+                return res.status(BAD_REQUEST).send({message: "Invalid user data"});
             }
 
             // Duplicate key error (e.g. unique field conclicts)
             if(err.code === 11000) {
-                statusCode = CONFLICT;
-                err.message = "User already exists";
+                return res.status(CONFLICT).send({message: "User already exists"});
             }
 
-            res.status(statusCode).send({message: err.message});
+            res.status(statusCode || SERVER_ERROR).send({message: err.message});
         });
 };
 
