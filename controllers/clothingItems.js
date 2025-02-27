@@ -122,11 +122,10 @@ const likeItem = (req, res) => {
             $pull: {
                 likes: req.user._id
             }}, { new: true })
-            .then(updatedItem => {
-                if(!updatedItem) {
-                    return res.status(NOT_FOUND).send({ message: "Clothing item not found" });
-                }                
-                
+            .orFail(() => {
+                throw createError("Clothing item not found", NOT_FOUND);
+            })
+            .then(updatedItem => {                
                 res.status(200).send(updatedItem);
             })
             .catch(err=> {
