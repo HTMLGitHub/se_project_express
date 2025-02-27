@@ -8,7 +8,6 @@ const getUsers = (req, res) => {
             res.status(200).send(users);
         })
         .catch(err => {
-            console.error(`\n"Get Users"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
             res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" });
         });
 };
@@ -25,8 +24,6 @@ const getUser = (req, res) => {
             res.status(200).send(user);
         })
         .catch(err => {
-            console.error(`\n"Get User by ID"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
-
             if(err.name === "CastError") {
                 return res.status(BAD_REQUEST).send({message: "Invalid User ID Format"});
             }

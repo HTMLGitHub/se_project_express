@@ -8,7 +8,6 @@ const getClothingItems = (req, res) => {
         res.status(200).send(clothing);
     })
     .catch(err => {
-        console.error(`\n"Get Items"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
         res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server."});
     });
 }
@@ -24,8 +23,6 @@ const getClothingItem = (req, res) => {
         res.status(200).send(clothing);
     })
     .catch(err => {
-        console.error(`\n"Get Item by ID"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
-
         if(err.name === "CastError") {
             return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
         }
@@ -50,7 +47,7 @@ const createClothingItem = (req, res) => {
     })
     .catch(err => {
        console.error("Create Item Error: ", err);
-       
+
         // Mongoose Validation Error (e.g. required field missing)
         if(err.name === "ValidationError") {
             return res.status(BAD_REQUEST).send({message: "Invalid clothing item data"});
@@ -73,8 +70,6 @@ const deleteClothingItem = (req, res) => {
         res.status(200).send({ message: "Clothing item deleted successfully" });
     })
     .catch(err => {
-        console.error(`\n"Delete Item"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
-
         if(err.name === "CastError") {
             return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
         }
@@ -98,8 +93,6 @@ const likeItem = (req, res) => {
         })
         .then(updatedItem => res.status(200).send(updatedItem))
         .catch(err=> {
-            console.error(`\n"Like Item"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
-
             if(err.name === "CastError") {
                 return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
             }
@@ -123,8 +116,6 @@ const likeItem = (req, res) => {
             })
             .then(updatedItem => res.status(200).send(updatedItem))
             .catch(err=> {
-                console.error(`\n"Unlike Item"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
-
                 if(err.name === "CastError") {
                     return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
                 }
