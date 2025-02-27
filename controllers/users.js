@@ -8,7 +8,7 @@ const getUsers = (req, res) => {
             res.status(200).send(users);
         })
         .catch(err => {
-            console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
+            console.error(`\n"Get Users"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
             res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" });
         });
 };
@@ -27,7 +27,7 @@ const getUser = (req, res) => {
             res.status(200).send(user);
         })
         .catch(err => {
-            console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
+            console.error(`\n"Get User by ID"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
             res.status(err.status || SERVER_ERROR).send({message: err.message || "Internal Server Error"});
         });
 };

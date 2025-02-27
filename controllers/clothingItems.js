@@ -1,21 +1,20 @@
-const res = require('express/lib/response');
 const ClothingItem = require('../models/clothingItem');
 const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
 
 // Get all clothing items
-const getClothingItems = async (req, res) => {
+const getClothingItems = (req, res) => {
     ClothingItem.find({})
     .then(clothing => {
         res.status(200).send(clothing);
     })
     .catch(err => {
-        console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
+        console.error(`\n"Get Items"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
         res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server."});
     });
 }
 
 // Get a clothing item by ID
-const getClothingItem = async (req, res) => {
+const getClothingItem = (req, res) => {
     const {itemId} = req.params;
     ClothingItem.findById(itemId)
     .orFail(() => {
@@ -27,13 +26,13 @@ const getClothingItem = async (req, res) => {
         res.status(200).send(clothing);
     })
     .catch(err => {
-        console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
+        console.error(`\n"Get Item by ID"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
         res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
     });
 }
 
 // Create a new clothing item
-const createClothingItem = async (req, res) => {
+const createClothingItem = (req, res) => {
     const {name, weather, imageUrl, owner, likes, createdAt} = req.body;
     ClothingItem.create({name, weather, imageUrl, owner, likes, createdAt})
     .then(newItem => {
@@ -58,14 +57,14 @@ const createClothingItem = async (req, res) => {
 }
 
 // Delete a clothing item
-const deleteClothingItem = async (req, res) => {
+const deleteClothingItem = (req, res) => {
     const {itemId} = req.params;
     ClothingItem.findByIdAndDelete(itemId)
     .then(() => {
         res.status(200).send({ message: "Clothing item deleted successfully" });
     })
     .catch(err => {
-        console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
+        console.error(`\n"Delete Item"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
         res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" });
     });
 }
@@ -83,7 +82,7 @@ const likeItem = (req, res) => {
         })
         .then(updatedItem => res.status(200).send(updatedItem))
         .catch(err=> {
-            console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
+            console.error(`\n"Like Item"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
             res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
         });
     };
@@ -101,7 +100,7 @@ const likeItem = (req, res) => {
             })
             .then(updatedItem => res.status(200).send(updatedItem))
             .catch(err=> {
-                console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
+                console.error(`\n"Unlike Item"\nError Name: ${err.name}\nStatus: ${err.status}\nCode: ${err.code}\nMessage: ${err.message}\n`);
                 res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
             });
     }
