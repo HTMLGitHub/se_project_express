@@ -84,6 +84,8 @@ const likeItem = (req, res) => {
         return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
     }
 
+    console.log(`Like request for Item ID: ${req.params.itemId}`);
+
     ClothingItem.findByIdAndUpdate(req.params.itemId, {
         $addToSet: {
             likes: req.user._id
