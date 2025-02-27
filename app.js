@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const mainRouter = require('./routers/index.js');
+const {NOT_FOUND} = require('./utils/errors.js');
 
 const {PORT = 3001, BASE_PATH} = process.env;
 const app = express();
@@ -25,7 +26,7 @@ app.use((req, res, next) => {
 
 // Handle non-existent resoureces (404 Not Found)
 app.use((req, res) => {
-    res.status(404).json(
+    res.status(NOT_FOUND).json(
         {
             message: "Request resource not found"
         });
