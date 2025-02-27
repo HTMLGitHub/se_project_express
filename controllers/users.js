@@ -3,26 +3,18 @@ const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require(".
 
 // Get all users
 const getUsers = (req, res) => {
-    User.find({})
-        .then(users => {
-            res.status(200).send(users);
-        })
-        .catch(err => {
-            res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" });
-        });
+    return User.find({})
+        .then(users => res.status(200).send(users))
+        .catch(err => res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" }));
 };
 
 // GET user by ID
 const getUser = (req, res) => {
-    const {userId} = req.params;
-
-    User.findById(userId)
+    return User.findById(request.params.userId)
         .orFail(() => {
             throw createError("User not found", NOT_FOUND);
         })
-        .then(user => {
-            res.status(200).send(user);
-        })
+        .then(user => res.status(200).send(user))
         .catch(err => {
             if(err.name === "CastError") {
                 return res.status(BAD_REQUEST).send({message: "Invalid User ID Format"});
@@ -36,10 +28,8 @@ const getUser = (req, res) => {
 const createUser = (req, res) => {
     const {name, avatar} = req.body;
 
-    User.create({name, avatar})
-        .then(newUser => {
-            res.status(201).send(newUser);
-        })
+    return User.create({name, avatar})
+        .then(newUser => res.status(201).send(newUser))
         .catch(err => {
             // Mongoose Validation Error (e.g. required field missing)
             if(err.name === "ValidationError") {
@@ -51,7 +41,7 @@ const createUser = (req, res) => {
                 return res.status(CONFLICT).send({message: "User already exists"});
             }
 
-            res.status(statusCode || SERVER_ERROR).send({message: err.message});
+            res.status(SERVER_ERROR).send({message: err.message});
         });
 };
 

@@ -4,14 +4,10 @@ const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError
 
 // Get all clothing items
 const getClothingItems = (req, res) => {
-    ClothingItem.find({})
-    .then(clothing => {
-        res.status(200).send(clothing);
-    })
-    .catch(err => {
-        res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server."});
-    });
-}
+    return ClothingItem.find({})
+    .then(clothing => res.status(200).send(clothing))
+    .catch(err => res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server."}));
+};
 
 // Get a clothing item by ID
 const getClothingItem = (req, res) => {
@@ -42,10 +38,8 @@ const createClothingItem = (req, res) => {
 
     const {name, weather, imageUrl} = req.body;
 
-    ClothingItem.create({name, weather, imageUrl, owner: req.user._id})
-    .then(newItem => {
-        res.status(201).send(newItem);
-    })
+    return ClothingItem.create({name, weather, imageUrl, owner: req.user._id})
+    .then(newItem => res.status(201).send(newItem))
     .catch(err => {
        console.error("Create Item Error: ", err);
 
@@ -59,7 +53,7 @@ const createClothingItem = (req, res) => {
             return res.status(CONFLICT).send({message: "Clothing item already exists"});
         }
 
-        res.status(statusCode || SERVER_ERROR).send({message: err.message});
+        res.status(SERVER_ERROR).send({message: err.message});
     });
 }
 

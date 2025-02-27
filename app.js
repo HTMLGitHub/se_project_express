@@ -1,10 +1,9 @@
 const express = require('express');
-const path = require('path');
 const mongoose = require('mongoose');
-const mainRouter = require('./routes/index.js');
-const {NOT_FOUND,SERVER_ERROR} = require('./utils/errors.js');
+const mainRouter = require('./routes/index');
+const {NOT_FOUND,SERVER_ERROR} = require('./utils/errors');
 
-const {PORT = 3001, BASE_PATH} = process.env;
+const {PORT = 3001} = process.env;
 const app = express();
 
 // Connect to the wtwr database
@@ -35,7 +34,7 @@ app.use((req, res) => {
 });
 
 // Global error handler (Fixes 500 HTML response)
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     console.error(`Unhandled Error: ${err}`);
     res.status(err.status || SERVER_ERROR).json(
         {
