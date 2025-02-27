@@ -106,8 +106,8 @@ const likeItem = (req, res) => {
 
     // Dislike (unlike) a clothing item
     const dislikeItem = (req, res) => {
-        console.log(`🛠 UnLike request for Item ID: ${req.params.itemId}`);
-        console.log(`🛠 User ID: ${req.user ? req.user._id : "No user"}`);
+        console.log(`UnLike request for Item ID: ${req.params.itemId}`);
+        console.log(`User ID: ${req.user ? req.user._id : "No user"}`);
 
         if(!req.user || !req.user._id) {
             return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
@@ -118,24 +118,37 @@ const likeItem = (req, res) => {
             return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
         }
 
-        ClothingItem.findByIdAndUpdate(req.params.itemId, {
-            $pull: {
-                likes: req.user._id
-            }}, { new: true })
-            .orFail(() => {
-                throw createError("Clothing item not found", NOT_FOUND);
-            })
-            .then(updatedItem => {                
-                res.status(200).send(updatedItem);
-            })
-            .catch(err=> {
-                console.error("Dislike Item Error: ", err);
-                if(err.name === "CastError") {
-                    return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
-                }
+        // Step 1: Check if the item exists before trying to delete it
+        ClothingItem.findById(req.params.itemId)
+        .then(item => {
+            if(!item) {
+                console.log("Clothing item not found");
+                return res.status(NOT_FOUND).send({ message: "Clothing item not found" });
+            }
 
-                res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
-            });
+            // Step 2: Now delete it, since we confirmed it exists
+            return ClothingItem.findByIdAndUpdate(req.params.itemId, {
+                $pull: {
+                    likes: req.user._id
+                }},
+                { new: true }
+            );            
+        })
+        .then(updatedItem => {
+            if(!updatedItem) {
+                console.log("Failed to delete clothing item");
+                return res.status(NOT_FOUND).send({ message: "Clothing item not found" });
+            }
+
+            res.status(200).send(updatedItem);
+        })
+        .catch(err => {
+            if(err.name === "CastError") {
+                return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
+            }
+
+            res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
+        });            
     }
 
 module.exports = { getClothingItems, getClothingItem, createClothingItem, deleteClothingItem, likeItem, dislikeItem };
