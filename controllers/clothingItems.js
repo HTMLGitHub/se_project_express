@@ -36,8 +36,12 @@ const getClothingItem = (req, res) => {
 
 // Create a new clothing item
 const createClothingItem = (req, res) => {
-    const {name, weather, imageUrl, owner, likes, createdAt} = req.body;
-    ClothingItem.create({name, weather, imageUrl, owner, likes, createdAt})
+    if(!req.user || !req.user._id) {
+        return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
+    }
+
+    const {name, weather, imageUrl} = req.body;
+    ClothingItem.create({name, weather, imageUrl, owner: req.user._id})
     .then(newItem => {
         res.status(201).send(newItem);
     })
