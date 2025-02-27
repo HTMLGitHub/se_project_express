@@ -9,6 +9,7 @@ const getClothingItems = async (req, res) => {
         res.status(200).send(clothing);
     })
     .catch(err => {
+        console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
         res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server."});
     });
 }
@@ -26,6 +27,7 @@ const getClothingItem = async (req, res) => {
         res.status(200).send(clothing);
     })
     .catch(err => {
+        console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
         res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
     });
 }
@@ -63,6 +65,7 @@ const deleteClothingItem = async (req, res) => {
         res.status(200).send({ message: "Clothing item deleted successfully" });
     })
     .catch(err => {
+        console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
         res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" });
     });
 }
@@ -80,7 +83,7 @@ const likeItem = (req, res) => {
         })
         .then(updatedItem => res.status(200).send(updatedItem))
         .catch(err=> {
-            console.error(err.name, err.message);
+            console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
             res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
         });
     };
@@ -98,7 +101,7 @@ const likeItem = (req, res) => {
             })
             .then(updatedItem => res.status(200).send(updatedItem))
             .catch(err=> {
-                console.error(err.name, err.message);
+                console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
                 res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
             });
     }

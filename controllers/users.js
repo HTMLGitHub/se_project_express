@@ -2,19 +2,19 @@ const User = require("../models/user");
 const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
 
 // Get all users
-const getUsers = async(req, res) => {
+const getUsers = (req, res) => {
     User.find({})
         .then(users => {
             res.status(200).send(users);
         })
         .catch(err => {
-            console.error(err.name, err.message);
+            console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
             res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" });
         });
 };
 
 // GET user by ID
-const getUser = async (req, res) => {
+const getUser = (req, res) => {
     const {userId} = req.params;
 
     User.findById(userId)
@@ -27,13 +27,13 @@ const getUser = async (req, res) => {
             res.status(200).send(user);
         })
         .catch(err => {
-            console.error(err.name, err.message);
-            res.status(err.status || 500).send({message: err.message || "Internal Server Error"});
+            console.error(`Error Name: ${err.name}\nCode ${err.status}\nMessage ${err.message}`);
+            res.status(err.status || SERVER_ERROR).send({message: err.message || "Internal Server Error"});
         });
 };
 
 // POST create a new user
-const createUser = async (req, res) => {
+const createUser = (req, res) => {
     const {name, avatar} = req.body;
 
     User.create({name, avatar})
