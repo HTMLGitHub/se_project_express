@@ -1,3 +1,4 @@
+const res = require('express/lib/response');
 const ClothingItem = require('../models/clothingItem');
 const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
 
@@ -66,5 +67,41 @@ const deleteClothingItem = async (req, res) => {
     });
 }
 
-module.exports = { getClothingItems, getClothingItem, createClothingItem, deleteClothingItem };
+// Like a clothing item
+const likeItem = (req, res) => {
+    ClothingItem.findByIdAndUpdate(req.params.itemId, {
+        $addToSet: {
+            likes: req.user._id
+        }}, { new: true })
+        .orFail(() => {
+            const error = Error("Clothing item not found");
+            error.status = NOT_FOUND;
+            throw error;
+        })
+        .then(updatedItem => res.status(200).send(updatedItem))
+        .catch(err=> {
+            console.error(err.name, err.message);
+            res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
+        });
+    };
+
+    // Dislike (unlike) a clothing item
+    const dislikeItem = (req, res) => {
+        ClothingItem.findByIdAndUpdate(req.params.itemId, {
+            $pull: {
+                likes: req.user._id
+            }}, { new: true })
+            .orFail(() => {
+                const error = Error("Clothing item not found");
+                error.status = NOT_FOUND;
+                throw error;
+            })
+            .then(updatedItem => res.status(200).send(updatedItem))
+            .catch(err=> {
+                console.error(err.name, err.message);
+                res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
+            });
+    }
+
+module.exports = { getClothingItems, getClothingItem, createClothingItem, deleteClothingItem, likeItem, dislikeItem };
 module.exports.creatreClothingItem = (res, req) => {console.log(req.user._id)};
