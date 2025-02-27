@@ -105,7 +105,8 @@ const likeItem = (req, res) => {
 
     // Dislike (unlike) a clothing item
     const dislikeItem = (req, res) => {
-        console.log(`UnLike request for Item ID: ${req.params.itemId}`);
+        console.log(`🛠 UnLike request for Item ID: ${req.params.itemId}`);
+        console.log(`🛠 User ID: ${req.user ? req.user._id : "No user"}`);
 
         if(!req.user || !req.user._id) {
             return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
@@ -115,11 +116,15 @@ const likeItem = (req, res) => {
             $pull: {
                 likes: req.user._id
             }}, { new: true })
-            .orFail(() => {
-                throw createError("Clothing item not found", NOT_FOUND);
+            .then(updatedItem => {
+                if(!updatedItem) {
+                    return res.status(NOT_FOUND).send({ message: "Clothing item not found" });
+                }                
+                
+                res.status(200).send(updatedItem);
             })
-            .then(updatedItem => res.status(200).send(updatedItem))
             .catch(err=> {
+                console.error("Dislike Item Error: ", err);
                 if(err.name === "CastError") {
                     return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
                 }
