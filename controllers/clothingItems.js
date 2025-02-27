@@ -33,7 +33,7 @@ const getClothingItem = (req, res) => {
 
 // Create a new clothing item
 const createClothingItem = (req, res) => {
-    console.log(`"Create Clothing Item"\nIncoming Request: ${req.body}\n\n`);
+    console.log(`"Create Clothing Item"\nIncoming Request: ${JSON.stringify(req.body, null, 2)}\n\n`);
 
     if(!req.user || !req.user._id) {
         return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
