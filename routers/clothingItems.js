@@ -14,7 +14,7 @@ router.post("/", createClothingItem);
 router.delete("/:itemId", deleteClothingItem);
 
 // Like a clothing item by ID
-router.post("/:itemId/likes", likeItem);
+router.put("/:itemId/likes", likeItem);
 
 // Dislike a clothing item by ID
 router.delete("/:itemId/likes", dislikeItem);
