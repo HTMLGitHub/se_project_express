@@ -1,5 +1,6 @@
 const ClothingItem = require('../models/clothingItem');
-const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require("../utils/errors");
+const validator = require('validator');
+const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require("../utils/errors");
 
 // Get all clothing items
 const getClothingItems = (req, res) => {
