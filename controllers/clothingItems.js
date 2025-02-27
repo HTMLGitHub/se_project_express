@@ -3,21 +3,19 @@ const ClothingItem = require('../models/clothingItem');
 const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require("../utils/errors");
 
 // Get all clothing items
-const getClothingItems = (req, res) => {
-    return ClothingItem.find({})
+const getClothingItems = (req, res) =>
+    ClothingItem.find({})
     .then(clothing => res.status(200).send(clothing))
     .catch(err => res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server."}));
-};
 
 // Get a clothing item by ID
 const getClothingItem = (req, res) => {
-    const {itemId} = req.params;
-    ClothingItem.findById(itemId)
+    return ClothingItem.findById(req.params.itemId)
     .orFail(() => {
         throw createError("Clothing item not found", NOT_FOUND);
     })
     .then(clothing => {
-        res.status(200).send(clothing);
+        return res.status(200).send(clothing);
     })
     .catch(err => {
         if(err.name === "CastError") {

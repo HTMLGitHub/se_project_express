@@ -2,27 +2,21 @@ const User = require("../models/user");
 const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require("../utils/errors");
 
 // Get all users
-const getUsers = (req, res) => {
-    return User.find({})
+const getUsers = (req, res) => User.find({})
         .then(users => res.status(200).send(users))
         .catch(err => res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" }));
-};
 
 // GET user by ID
-const getUser = (req, res) => {
-    return User.findById(request.params.userId)
-        .orFail(() => {
-            throw createError("User not found", NOT_FOUND);
-        })
-        .then(user => res.status(200).send(user))
-        .catch(err => {
-            if(err.name === "CastError") {
-                return res.status(BAD_REQUEST).send({message: "Invalid User ID Format"});
-            }
-
-            res.status(err.status || SERVER_ERROR).send({message: err.message || "Internal Server Error"});
-        });
-};
+const getUser = (req, res) => User.findById(req.params.userId)
+    .orFail(() => { throw createError("User not found", NOT_FOUND);})
+    .then(user => res.status(200).send(user))
+    .catch(err => {
+        if(err.name === "CastError") {
+            return res.status(BAD_REQUEST).send({message: "Invalid User ID Format"});
+        }
+            
+        res.status(err.status || SERVER_ERROR).send({message: err.message || "Internal Server Error"});
+    });
 
 // POST create a new user
 const createUser = (req, res) => {
