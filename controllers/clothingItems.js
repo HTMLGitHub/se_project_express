@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose');
 const ClothingItem = require('../models/clothingItem');
 const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require("../utils/errors");
 
@@ -110,6 +111,11 @@ const likeItem = (req, res) => {
 
         if(!req.user || !req.user._id) {
             return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
+        }
+
+        // Check if itemId is a valid OjectId
+        if(!mongoose.Types.ObjectId.isValid(req.params.itemId)) {
+            return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
         }
 
         ClothingItem.findByIdAndUpdate(req.params.itemId, {
