@@ -43,7 +43,7 @@ const createUser = (req, res) => {
                 return res.status(CONFLICT).send({message: "User already exists"});
             }
 
-            res.status(SERVER_ERROR).send({message: err.message});
+            return res.status(SERVER_ERROR).send({message: err.message});
         });
 };
 
