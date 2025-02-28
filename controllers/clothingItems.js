@@ -70,7 +70,7 @@ const deleteClothingItem = (req, res) => {
     }
 
 
-    ClothingItem.findByIdAndDelete(itemId)
+    return ClothingItem.findByIdAndDelete(itemId)
     .then((deletedItem) => {
         if(!deletedItem) {
             return res.status(NOT_FOUND).send({ message: "Clothing item not found" });
