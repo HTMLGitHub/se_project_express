@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require("../utils/errors");
+const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
 
 // Get all users
 const getUsers = (req, res) => 

@@ -1,6 +1,6 @@
 const { default: mongoose } = require('mongoose');
 const ClothingItem = require('../models/clothingItem');
-const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError} = require("../utils/errors");
+const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
 
 // Get all clothing items
 const getClothingItems = (req, res) =>
@@ -15,7 +15,7 @@ const getClothingItems = (req, res) =>
 // Get a clothing item by ID
 const getClothingItem = (req, res) =>
     ClothingItem.findById(req.params.itemId)
-    .orFail(() => createError("Clothing item not found", NOT_FOUND))
+    .orFail(() => res.status(NOT_FOUND).send({ message: "Clothing item not found" }))
     .then((clothing) => res.status(200).send(clothing))
     .catch((err) => {
         if(err.name === "CastError") {
@@ -107,7 +107,7 @@ const likeItem = (req, res) => {
         },
         { new: true }
     )
-        .orFail(() => createError("Clothing item not found", NOT_FOUND))
+        .orFail(() => res.status(NOT_FOUND).send({ message: "Clothing item not found" }))
         .then((updatedItem) => res.status(200).send(updatedItem))
         .catch((err) => {
             if(err.name === "CastError") {

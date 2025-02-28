@@ -4,10 +4,4 @@ module.exports = {
     NOT_FOUND: 404, // Resource not found
     CONFLICT: 409, // Resource already exists
     SERVER_ERROR: 500, // Internal server error
-
-createError: (message, statusCode) => {
-    const error = new Error(message);
-    error.status = statusCode;
-    return error;
-}
 };
