@@ -32,6 +32,8 @@ app.use((req, res, next) => {
         {
             message: "Request resource not found"
         });
+
+    next();
 });
 
 // Global error handler (Fixes 500 HTML response)
@@ -41,6 +43,8 @@ app.use((err, req, res, next) => {
         {
             message: err.message || "Internal Server Error"
         });
+
+    next();
 });
 
 app.listen(PORT, () => {

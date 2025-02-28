@@ -13,7 +13,7 @@ const getClothingItems = (req, res) =>
 // Get a clothing item by ID
 const getClothingItem = (req, res) =>
     ClothingItem.findById(req.params.itemId)
-    .orFail(() => {throw new error("NotFound")})
+    .orFail(() => {throw new Error("NotFound")})
     .then((clothing) => res.status(200).json(clothing))
     .catch((err) => {
         if(err.name === "CastError") {
