@@ -59,6 +59,17 @@ const createClothingItem = (req, res) => {
 // Delete a clothing item
 const deleteClothingItem = (req, res) => {
     const {itemId} = req.params;
+
+    if(!req.user || !req.user._id) {
+        return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
+    }
+
+    // Check if itemId is a valid OjectId
+    if(!mongoose.Types.ObjectId.isValid(itemId.itemId)) {
+        return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
+    }
+
+
     ClothingItem.findByIdAndDelete(itemId)
     .then((deletedItem) => {
         if(!deletedItem) {
