@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const auth = require("../middleware/auth");
 const {getClothingItems, getClothingItem, createClothingItem, deleteClothingItem, likeItem, dislikeItem} = require("../controllers/clothingItems");
 
 // Public Routes (No authentication required)
@@ -12,16 +11,16 @@ router.get("/:itemId", getClothingItem);
 
 // Protected Routes (Authentication required)
 // POST a new clothing item
-router.post("/", auth, createClothingItem);
+router.post("/", createClothingItem);
 
 // Delete a clothing item by ID
-router.delete("/:itemId", auth, deleteClothingItem);
+router.delete("/:itemId", deleteClothingItem);
 
 // Like a clothing item by ID
-router.put("/:itemId/likes", auth, likeItem);
+router.put("/:itemId/likes", likeItem);
 
 // Dislike a clothing item by ID
-router.delete("/:itemId/likes", auth, dislikeItem);
+router.delete("/:itemId/likes", dislikeItem);
 
 
 module.exports = router;
