@@ -5,26 +5,27 @@ const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, createError
 // Get all clothing items
 const getClothingItems = (req, res) =>
     ClothingItem.find({})
-    .then(clothing => res.status(200).send(clothing))
-    .catch(err => res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server."}));
+    .then((clothing) => res.status(200).send(clothing))
+    .catch((err) => 
+        res
+            .status(err.status || SERVER_ERROR)
+            .send({ message: err.message || "An error has occurred on the server."})
+    );
 
 // Get a clothing item by ID
-const getClothingItem = (req, res) => {
-    return ClothingItem.findById(req.params.itemId)
-    .orFail(() => {
-        throw createError("Clothing item not found", NOT_FOUND);
-    })
-    .then(clothing => {
-        return res.status(200).send(clothing);
-    })
-    .catch(err => {
+const getClothingItem = (req, res) =>
+    ClothingItem.findById(req.params.itemId)
+    .orFail(() => createError("Clothing item not found", NOT_FOUND))
+    .then((clothing) => res.status(200).send(clothing))
+    .catch((err) => {
         if(err.name === "CastError") {
             return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
         }
 
-        res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
+        return res
+            .status(err.status || SERVER_ERROR)
+            .send({ message: err.message || "An error has occurred on the server." });
     });
-}
 
 // Create a new clothing item
 const createClothingItem = (req, res) => {
@@ -37,8 +38,8 @@ const createClothingItem = (req, res) => {
     const {name, weather, imageUrl} = req.body;
 
     return ClothingItem.create({name, weather, imageUrl, owner: req.user._id})
-    .then(newItem => res.status(201).send(newItem))
-    .catch(err => {
+    .then((newItem) => res.status(201).send(newItem))
+    .catch((err) => {
        console.error("Create Item Error: ", err);
 
         // Mongoose Validation Error (e.g. required field missing)
@@ -51,7 +52,7 @@ const createClothingItem = (req, res) => {
             return res.status(CONFLICT).send({message: "Clothing item already exists"});
         }
 
-        res.status(SERVER_ERROR).send({message: err.message});
+        return res.status(SERVER_ERROR).send({message: err.message});
     });
 }
 
@@ -59,17 +60,23 @@ const createClothingItem = (req, res) => {
 const deleteClothingItem = (req, res) => {
     const {itemId} = req.params;
     ClothingItem.findByIdAndDelete(itemId)
-    .then(() => {
-        res.status(200).send({ message: "Clothing item deleted successfully" });
+    .then((deletedItem) => {
+        if(!deletedItem) {
+            return res.status(NOT_FOUND).send({ message: "Clothing item not found" });
+        }
+
+        return res.status(200).send({ message: "Clothing item deleted successfully" });
     })
-    .catch(err => {
+    .catch((err) => {
         if(err.name === "CastError") {
             return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
         }
 
-        res.status(err.status || SERVER_ERROR).send({ message: err.message || "Internal Server Error" });
+        return res
+            .status(err.status || SERVER_ERROR)
+            .send({ message: err.message || "Internal Server Error" });
     });
-}
+};
 
 // Like a clothing item
 const likeItem = (req, res) => {
@@ -79,20 +86,26 @@ const likeItem = (req, res) => {
         return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
     }    
 
-    ClothingItem.findByIdAndUpdate(req.params.itemId, {
-        $addToSet: {
-            likes: req.user._id
-        }}, { new: true })
-        .orFail(() => {
-           throw createError("Clothing item not found", NOT_FOUND);
-        })
-        .then(updatedItem => res.status(200).send(updatedItem))
-        .catch(err=> {
+    return ClothingItem.findByIdAndUpdate(
+        req.params.itemId, 
+        {
+            $addToSet: 
+            {
+                likes: req.user._id,
+            },
+        },
+        { new: true }
+    )
+        .orFail(() => createError("Clothing item not found", NOT_FOUND))
+        .then((updatedItem) => res.status(200).send(updatedItem))
+        .catch((err) => {
             if(err.name === "CastError") {
                 return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
             }
 
-            res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
+            return res
+            .status(err.status || SERVER_ERROR)
+            .send({ message: err.message || "An error has occurred on the server." });
         });
     };
 
@@ -111,35 +124,36 @@ const likeItem = (req, res) => {
         }
 
         // Step 1: Check if the item exists before trying to delete it
-        ClothingItem.findById(req.params.itemId)
-        .then(item => {
+        return ClothingItem.findById(req.params.itemId)
+        .then((item) => {
             if(!item) {
                 console.log("Clothing item not found");
                 return res.status(NOT_FOUND).send({ message: "Clothing item not found" });
             }
 
             // Step 2: Now delete it, since we confirmed it exists
-            return ClothingItem.findByIdAndUpdate(req.params.itemId, {
-                $pull: {
-                    likes: req.user._id
-                }},
+            return ClothingItem.findByIdAndUpdate(
+                req.params.itemId, 
+                {$pull: {likes: req.user._id}},
                 { new: true }
             );            
         })
-        .then(updatedItem => {
+        .then((updatedItem) => {
             if(!updatedItem) {
                 console.log("Failed to delete clothing item");
                 return res.status(NOT_FOUND).send({ message: "Clothing item not found" });
             }
 
-            res.status(200).send(updatedItem);
+            return res.status(200).send(updatedItem);
         })
-        .catch(err => {
+        .catch((err) => {
             if(err.name === "CastError") {
                 return res.status(BAD_REQUEST).send({ message: "Invalid Clothing Item ID Format" });
             }
 
-            res.status(err.status || SERVER_ERROR).send({ message: err.message || "An error has occurred on the server." });
+            return res
+            .status(err.status || SERVER_ERROR)
+            .send({ message: err.message || "An error has occurred on the server." });
         });            
     }
 
