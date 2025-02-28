@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const User = require("../models/user");
 const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
 
@@ -5,26 +6,36 @@ const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/error
 const getUsers = (req, res) => 
     User.find({})
         .then((users) => res.status(200).json(users))
-        .catch((err) => 
-            res
-                .status(err.status || SERVER_ERROR)
-                .json({ message: err.message || "Internal Server Error" })
+        .catch(() => 
+            res.status(SERVER_ERROR).json({ message: "Internal Server Error" })
         );
 
 // GET user by ID
-const getUser = (req, res) => 
-    User.findById(req.params.userId)
-        .orFail(() => res.status(NOT_FOUND).json({message: "User not found"}))
+const getUser = (req, res) => {
+    if (!req.params.userId) {
+        return res.status(BAD_REQUEST).json({message: "User ID is required"});
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+        return res.status(BAD_REQUEST).json({message: "Invalid User ID Format"});
+    }
+
+    return User.findById(req.params.userId)
+        .orFail(() => {throw new Error("NotFound")})
         .then((user) => res.status(200).json(user))
+        
         .catch((err) => {
             if(err.name === "CastError") {
                 return res.status(BAD_REQUEST).json({message: "Invalid User ID Format"});
             }
-            
-            return res
-                .status(err.status || SERVER_ERROR)
-                .json({message: err.message || "Internal Server Error"});
+
+            if(err.message === "NotFound") {
+                return res.status(NOT_FOUND).json({message: "User not found"});
+            }
+
+            return res.status(SERVER_ERROR).json({message: "Internal Server Error"});
     });
+};
 
 // POST create a new user
 const createUser = (req, res) => {

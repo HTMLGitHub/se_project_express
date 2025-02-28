@@ -6,25 +6,25 @@ const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("
 const getClothingItems = (req, res) =>
     ClothingItem.find({})
     .then((clothing) => res.status(200).json(clothing))
-    .catch((err) => 
-        res
-            .status(err.status || SERVER_ERROR)
-            .json({ message: err.message || "An error has occurred on the server."})
+    .catch(() => 
+        res.status(SERVER_ERROR).json({ message: "An error has occurred on the server."})
     );
 
 // Get a clothing item by ID
 const getClothingItem = (req, res) =>
     ClothingItem.findById(req.params.itemId)
-    .orFail(() => res.status(NOT_FOUND).json({ message: "Clothing item not found" }))
+    .orFail(() => {throw new error("NotFound")})
     .then((clothing) => res.status(200).json(clothing))
     .catch((err) => {
         if(err.name === "CastError") {
             return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
         }
 
-        return res
-            .status(err.status || SERVER_ERROR)
-            .json({ message: err.message || "An error has occurred on the server." });
+        if(err.message === "NotFound") {
+            return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
+        }
+
+        return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
     });
 
 // Create a new clothing item
@@ -65,7 +65,7 @@ const deleteClothingItem = (req, res) => {
     }
 
     // Check if itemId is a valid OjectId
-    if(!mongoose.Types.ObjectId.isValid(itemId.itemId)) {
+    if(!mongoose.Types.ObjectId.isValid(req.params.itemId)) {
         return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
     }
 
@@ -83,9 +83,7 @@ const deleteClothingItem = (req, res) => {
             return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
         }
 
-        return res
-            .status(err.status || SERVER_ERROR)
-            .json({ message: err.message || "Internal Server Error" });
+        return res.status(SERVER_ERROR).json({ message: "Internal Server Error" });
     });
 };
 
@@ -107,16 +105,18 @@ const likeItem = (req, res) => {
         },
         { new: true }
     )
-        .orFail(() => res.status(NOT_FOUND).json({ message: "Clothing item not found" }))
+        .orFail(() => {throw new Error("NotFound")})
         .then((updatedItem) => res.status(200).json(updatedItem))
         .catch((err) => {
             if(err.name === "CastError") {
                 return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
             }
 
-            return res
-            .status(err.status || SERVER_ERROR)
-            .json({ message: err.message || "An error has occurred on the server." });
+            if(err.message === "NotFound") {
+                return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
+            }
+
+            return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
         });
     };
 
@@ -152,7 +152,7 @@ const likeItem = (req, res) => {
         .then((updatedItem) => {
             if(!updatedItem) {
                 console.log("Failed to delete clothing item");
-                return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
+                return res.status(SERVER_ERROR).json({ message: "Failed to delete clothing item" });
             }
 
             return res.status(200).json(updatedItem);
@@ -169,4 +169,4 @@ const likeItem = (req, res) => {
     }
 
 module.exports = { getClothingItems, getClothingItem, createClothingItem, deleteClothingItem, likeItem, dislikeItem };
-module.exports.creatreClothingItem = (res, req) => {console.log(req.user._id)};
+module.exports.createClothingItem = (res, req) => {console.log(req.user._id)};

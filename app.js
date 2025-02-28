@@ -8,7 +8,8 @@ const app = express();
 
 // Connect to the wtwr database
 mongoose
-    .connect('mongodb://127.0.0.1:27017/wtwr_db')
+    .connect('mongodb://127.0.0.1:27017/wtwr_db',
+    { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log("Connected to wtwr database");
     })
@@ -26,7 +27,7 @@ app.use((req, res, next) => {
 app.use("/", mainRouter);
 
 // Handle non-existent resoureces (404 Not Found)
-app.use((req, res) => {
+app.use((req, res, next) => {
     res.status(NOT_FOUND).json(
         {
             message: "Request resource not found"
@@ -34,7 +35,7 @@ app.use((req, res) => {
 });
 
 // Global error handler (Fixes 500 HTML response)
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     console.error(`Unhandled Error: ${err}`);
     res.status(err.status || SERVER_ERROR).json(
         {
