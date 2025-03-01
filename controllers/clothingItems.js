@@ -160,6 +160,6 @@ const likeItem = (req, res) => {
             .status(err.status || SERVER_ERROR)
             .json({ message: err.message || "An error has occurred on the server." });
         });            
-    }
+    };
 
 module.exports = { getClothingItems, getClothingItem, createClothingItem, deleteClothingItem, likeItem, dislikeItem };
