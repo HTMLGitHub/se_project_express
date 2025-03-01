@@ -30,7 +30,7 @@ const getClothingItem = (req, res) =>
 // Create a new clothing item
 const createClothingItem = (req, res) => {
     console.error("Create Clothing Item Request:\n");
-    console.error(`User ID:${res.user._id}\n\n`);
+    console.error(`User ID:${req.user._id}\n\n`);
 
     if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
@@ -38,7 +38,7 @@ const createClothingItem = (req, res) => {
 
     const {name, weather, imageUrl} = req.body;
     
-    if(!name || name < 2 || name > 30 || !weather || !imageUrl) {
+    if(!name || name.length < 2 || name.length > 30 || !weather || !imageUrl) {
         return res.status(BAD_REQUEST).json({ message: "Missing required fields" });
     }
 
