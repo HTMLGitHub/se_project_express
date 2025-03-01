@@ -29,8 +29,8 @@ const getClothingItem = (req, res) =>
 
 // Create a new clothing item
 const createClothingItem = (req, res) => {
-    console.log("Create Clothing Item Request:\n");
-    console.log(`User ID:${res.user._id}\n\n`);
+    console.error("Create Clothing Item Request:\n");
+    console.error(`User ID:${res.user._id}\n\n`);
 
     if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
@@ -95,7 +95,7 @@ const deleteClothingItem = (req, res) => {
 
 // Like a clothing item
 const likeItem = (req, res) => {
-    console.log(`Like request for Item ID: ${req.params.itemId}`);
+    console.error(`Like request for Item ID: ${req.params.itemId}`);
 
     if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
@@ -128,8 +128,8 @@ const likeItem = (req, res) => {
 
     // Dislike (unlike) a clothing item
     const dislikeItem = (req, res) => {
-        console.log(`UnLike request for Item ID: ${req.params.itemId}`);
-        console.log(`User ID: ${req.user ? req.user._id : "No user"}`);
+        console.error(`UnLike request for Item ID: ${req.params.itemId}`);
+        console.error(`User ID: ${req.user ? req.user._id : "No user"}`);
 
         if(!req.user?._id) {
             return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
@@ -144,7 +144,7 @@ const likeItem = (req, res) => {
         return ClothingItem.findById(req.params.itemId)
         .then((item) => {
             if(!item) {
-                console.log("Clothing item not found");
+                console.error("Clothing item not found");
                 return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
             }
 
@@ -157,7 +157,7 @@ const likeItem = (req, res) => {
         })
         .then((updatedItem) => {
             if(!updatedItem) {
-                console.log("Failed to delete clothing item");
+                console.error("Failed to delete clothing item");
                 return res.status(SERVER_ERROR).json({ message: "Failed to delete clothing item" });
             }
 
@@ -175,4 +175,4 @@ const likeItem = (req, res) => {
     }
 
 module.exports = { getClothingItems, getClothingItem, createClothingItem, deleteClothingItem, likeItem, dislikeItem };
-module.exports.createClothingItem = (res, req) => {console.log(req.user._id)};
+module.exports.createClothingItem = (res, req) => {console.error(req.user._id)};
