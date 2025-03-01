@@ -29,16 +29,28 @@ const getClothingItem = (req, res) =>
 
 // Create a new clothing item
 const createClothingItem = (req, res) => {
-    console.log(`"Create Clothing Item"\nIncoming Request: ${JSON.stringify(req.body, null, 2)}\n\n`);
+    console.log("Create Clothing Item Request:\n");
+    console.log(`User ID:${res.user._id}\n\n`);
 
     if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
     }
 
     const {name, weather, imageUrl} = req.body;
-    const newClothes = ClothingItem({name, weather, imageUrl, owner: req.user._id });
+    const ownerID = req.user ? req.user._id : null;
+    
+    if(!name || name < 2 || name > 30 || !weather || !imageUrl || !ownerID) {
+        return res.status(BAD_REQUEST).json({ message: "Missing required fields" });
+    }
 
-    return newClothes.create(newClothes)
+    try{
+        new URL(imageUrl);
+    }
+    catch {
+        return res.status(BAD_REQUEST).json({ message: "Invalid image URL" });
+    }
+
+    return CreateItem.create({name, weather, imageUrl, ownerID })
     .then((newItem) => res.status(201).json(newItem))
     .catch((err) => {
        console.error("Create Item Error: ", err);
