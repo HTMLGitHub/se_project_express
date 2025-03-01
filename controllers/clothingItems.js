@@ -38,7 +38,7 @@ const createClothingItem = (req, res) => {
     const {name, weather, imageUrl} = req.body;
     const newClothes = ClothingItem({name, weather, imageUrl, owner: req.user._id });
 
-    return newClothes.create(newItem)
+    return newClothes.create(newClothes)
     .then((newItem) => res.status(201).json(newItem))
     .catch((err) => {
        console.error("Create Item Error: ", err);
