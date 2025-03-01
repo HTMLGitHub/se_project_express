@@ -43,7 +43,7 @@ const createClothingItem = (req, res) => {
         return res.status(BAD_REQUEST).json({ message: "Missing required fields" });
     }
 
-    return CreateItem.create({name, weather, imageUrl, ownerID })
+    return ClothingItem.create({name, weather, imageUrl, ownerID })
     .then((newItem) => res.status(201).json(newItem))
     .catch((err) => {
        console.error("Create Item Error: ", err);
