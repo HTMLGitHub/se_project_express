@@ -37,13 +37,21 @@ const createClothingItem = (req, res) => {
     }
 
     const {name, weather, imageUrl} = req.body;
-    const ownerID = req.user ? req.user._id : null;
     
-    if(!name || name < 2 || name > 30 || !weather || !imageUrl || !ownerID) {
+    if(!name || name < 2 || name > 30 || !weather || !imageUrl) {
         return res.status(BAD_REQUEST).json({ message: "Missing required fields" });
     }
 
-    return ClothingItem.create({name, weather, imageUrl, ownerID })
+    try {
+        new URL(imageUrl);
+    }
+    catch(err) {
+        return res.status(BAD_REQUEST).json({ message: "Invalid image URL" });
+    }
+
+    const newClothes = new ClothingItem({name, weather, imageUrl, owner: req.user._id});
+
+    return newClothes.save()
     .then((newItem) => res.status(201).json(newItem))
     .catch((err) => {
        console.error("Create Item Error: ", err);
