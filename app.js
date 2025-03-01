@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const mainRouter = require('./routes/index');
 const {NOT_FOUND,SERVER_ERROR} = require('./utils/errors');
+const logger = require('./utils/logger');
 
 const {PORT = 3001} = process.env;
 const app = express();
@@ -15,8 +16,12 @@ mongoose
     })
     .then(() => {
         console.log("Connected to wtwr database");
+        logger.info("Connected to wtwr database");
     })
-    .catch(console.error);
+    .catch(() => {
+        console.error("Error connecting to wtwr database");
+        logger.error("Error connecting to wtwr database");
+    });
 
 app.use(express.json());
 
@@ -41,7 +46,7 @@ app.use((req, res, next) => {
 
 // Global error handler (Fixes 500 HTML response)
 app.use((err, req, res, next) => {
-    console.error(`Unhandled Error: ${err}`);
+   logger.info(`Unhandled Error: ${err}`);
     res.status(err.status || SERVER_ERROR).json(
         {
             message: err.message || "Internal Server Error"
@@ -52,4 +57,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log("Up and running");
+    logger.info("Up and running");
 });
