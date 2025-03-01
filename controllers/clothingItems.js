@@ -42,13 +42,6 @@ const createClothingItem = (req, res) => {
         return res.status(BAD_REQUEST).json({ message: "Missing required fields" });
     }
 
-    try {
-        new URL(imageUrl);
-    }
-    catch(err) {
-        return res.status(BAD_REQUEST).json({ message: "Invalid image URL" });
-    }
-
     const newClothes = new ClothingItem({name, weather, imageUrl, owner: req.user._id});
 
     return newClothes.save()
