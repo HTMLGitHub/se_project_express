@@ -43,13 +43,6 @@ const createClothingItem = (req, res) => {
         return res.status(BAD_REQUEST).json({ message: "Missing required fields" });
     }
 
-    try{
-        new URL(imageUrl);
-    }
-    catch {
-        return res.status(BAD_REQUEST).json({ message: "Invalid image URL" });
-    }
-
     return CreateItem.create({name, weather, imageUrl, ownerID })
     .then((newItem) => res.status(201).json(newItem))
     .catch((err) => {
