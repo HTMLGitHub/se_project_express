@@ -1,7 +1,6 @@
 const { default: mongoose } = require('mongoose');
 const ClothingItem = require('../models/clothingItem');
 const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
-const logger = require("../utils/logger");
 
 // Get all clothing items
 const getClothingItems = (req, res) =>
@@ -30,9 +29,6 @@ const getClothingItem = (req, res) =>
 
 // Create a new clothing item
 const createClothingItem = (req, res) => {
-    logger.info("Create Clothing Item Request:\n");
-    logger.info(`User ID:${req.user._id}\n\n`);
-
     if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
     }
@@ -48,9 +44,6 @@ const createClothingItem = (req, res) => {
     return newClothes.save()
     .then((newItem) => res.status(201).json(newItem))
     .catch((err) => {
-       logger.info("Create Item Error: ", err);
-
-        // Mongoose Validation Error (e.g. required field missing)
         if(err.name === "ValidationError") {
             return res.status(BAD_REQUEST).json({message: "Invalid clothing item data"});
         }
@@ -97,8 +90,6 @@ const deleteClothingItem = (req, res) => {
 
 // Like a clothing item
 const likeItem = (req, res) => {
-    logger.info(`Like request for Item ID: ${req.params.itemId}`);
-
     if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
     }    
@@ -130,10 +121,7 @@ const likeItem = (req, res) => {
 
     // Dislike (unlike) a clothing item
     const dislikeItem = (req, res) => {
-        logger.info(`UnLike request for Item ID: ${req.params.itemId}`);
-        logger.info(`User ID: ${req.user ? req.user._id : "No user"}`);
-
-        if(!req.user?._id) {
+       if(!req.user?._id) {
             return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
         }
 
@@ -146,7 +134,6 @@ const likeItem = (req, res) => {
         return ClothingItem.findById(req.params.itemId)
         .then((item) => {
             if(!item) {
-                logger.info("Clothing item not found");
                 return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
             }
 
@@ -159,7 +146,6 @@ const likeItem = (req, res) => {
         })
         .then((updatedItem) => {
             if(!updatedItem) {
-                logger.info("Failed to delete clothing item");
                 return res.status(SERVER_ERROR).json({ message: "Failed to delete clothing item" });
             }
 
@@ -177,4 +163,3 @@ const likeItem = (req, res) => {
     }
 
 module.exports = { getClothingItems, getClothingItem, createClothingItem, deleteClothingItem, likeItem, dislikeItem };
-module.exports.createClothingItem = (res, req) => {console.log(req.user._id)};
