@@ -31,13 +31,14 @@ const getClothingItem = (req, res) =>
 const createClothingItem = (req, res) => {
     console.log(`"Create Clothing Item"\nIncoming Request: ${JSON.stringify(req.body, null, 2)}\n\n`);
 
-    if(!req.user || !req.user._id) {
+    if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
     }
 
     const {name, weather, imageUrl} = req.body;
+    const newClothes = ClothingItem({name, weather, imageUrl, owner: req.user._id });
 
-    return ClothingItem.create({name, weather, imageUrl, owner: req.user._id})
+    return newClothes.create(newItem)
     .then((newItem) => res.status(201).json(newItem))
     .catch((err) => {
        console.error("Create Item Error: ", err);
@@ -60,7 +61,7 @@ const createClothingItem = (req, res) => {
 const deleteClothingItem = (req, res) => {
     const {itemId} = req.params;
 
-    if(!req.user || !req.user._id) {
+    if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
     }
 
@@ -91,7 +92,7 @@ const deleteClothingItem = (req, res) => {
 const likeItem = (req, res) => {
     console.log(`Like request for Item ID: ${req.params.itemId}`);
 
-    if(!req.user || !req.user._id) {
+    if(!req.user?._id) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
     }    
 
@@ -125,7 +126,7 @@ const likeItem = (req, res) => {
         console.log(`UnLike request for Item ID: ${req.params.itemId}`);
         console.log(`User ID: ${req.user ? req.user._id : "No user"}`);
 
-        if(!req.user || !req.user._id) {
+        if(!req.user?._id) {
             return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
         }
 

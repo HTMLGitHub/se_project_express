@@ -8,8 +8,11 @@ const app = express();
 
 // Connect to the wtwr database
 mongoose
-    .connect('mongodb://127.0.0.1:27017/wtwr_db',
-    { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/wtwr_db',
+    { 
+        useNewUrlParser: true, 
+        useUnifiedTopology: true 
+    })
     .then(() => {
         console.log("Connected to wtwr database");
     })
