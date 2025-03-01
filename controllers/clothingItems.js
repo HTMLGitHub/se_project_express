@@ -139,7 +139,7 @@ const likeItem = (req, res) => {
 
             // Step 2: Now delete it, since we confirmed it exists
             return ClothingItem.findByIdAndUpdate(
-                req.params.itemId, 
+                item._id, 
                 {$pull: {likes: req.user._id}},
                 { new: true }
             );            
