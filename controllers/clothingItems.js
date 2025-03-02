@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const ClothingItem = require('../models/clothingItem');
-const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
+const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR} = require("../utils/errors");
 
 // Get all clothing items
 const getClothingItems = (req, res) =>
