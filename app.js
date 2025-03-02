@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const mainRouter = require('./routes/index');
-const {NOT_FOUND,SERVER_ERROR} = require('./utils/errors');
+const {SERVER_ERROR} = require('./utils/errors');
+const ResourceNotFound = require('./routes/notFound');
 
 const {PORT = 3001} = process.env;
 const app = express();
@@ -31,15 +32,7 @@ app.use((req, res, next) => {
 
 app.use("/", mainRouter);
 
-// Handle non-existent resoureces (404 Not Found)
-app.use((req, res, next) => {
-    res.status(NOT_FOUND).json(
-        {
-            message: "Request resource not found"
-        });
-
-    next();
-});
+app.use(ResourceNotFound);
 
 // Global error handler (Fixes 500 HTML response)
 app.use((err, req, res, next) => {
