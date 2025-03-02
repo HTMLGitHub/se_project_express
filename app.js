@@ -42,7 +42,8 @@ app.use((req, res, next) => {
 });
 
 // Global error handler (Fixes 500 HTML response)
-app.use((err, req, res, _next) => {
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
     res.status(err.status || SERVER_ERROR).json(
         {
             message: err.message || "Internal Server Error"
