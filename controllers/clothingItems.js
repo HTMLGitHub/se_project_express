@@ -129,7 +129,7 @@ const likeItem = (req, res) => {
                 return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
             }
     
-           const item = await ClothingItem.fineById(req.params.itemId);
+           const item = await ClothingItem.findById(req.params.itemId);
            if (!item) {
                return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
            }
