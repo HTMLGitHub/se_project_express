@@ -35,10 +35,6 @@ const createClothingItem = (req, res) => {
 
     const {name, weather, imageUrl} = req.body;
     
-    if(!name || name.length < 2 || name.length > 30 || !weather || !imageUrl) {
-        return res.status(BAD_REQUEST).json({ message: "Missing required fields" });
-    }
-
     const newClothes = new ClothingItem({name, weather, imageUrl, owner: req.user._id});
 
     return newClothes.save()
@@ -46,11 +42,6 @@ const createClothingItem = (req, res) => {
     .catch((err) => {
         if(err.name === "ValidationError") {
             return res.status(BAD_REQUEST).json({message: "Invalid clothing item data"});
-        }
-
-        // Duplicate key error (e.g. unique field conclicts)
-        if(err.code === 11000) {
-            return res.status(CONFLICT).json({message: "Clothing item already exists"});
         }
 
         return res.status(SERVER_ERROR).json({message: err.message});

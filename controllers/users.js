@@ -49,11 +49,6 @@ const createUser = (req, res) => {
                 return res.status(BAD_REQUEST).json({message: "Invalid user data"});
             }
 
-            // Duplicate key error (e.g. unique field conclicts)
-            if(err.code === 11000) {
-                return res.status(CONFLICT).json({message: "User already exists"});
-            }
-
             return res.status(SERVER_ERROR).json({message: err.message});
         });
 };
