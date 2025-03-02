@@ -1,4 +1,4 @@
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 const ClothingItem = require('../models/clothingItem');
 const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT} = require("../utils/errors");
 
@@ -119,47 +119,46 @@ const likeItem = (req, res) => {
         });
     };
 
-    // Dislike (unlike) a clothing item
-    const dislikeItem = (req, res) => {
-       if(!req.user?._id) {
-            return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
-        }
+    const dislikeItem = async (req, res) => {
+        try {
+            if(!req.user?._id) {
+                return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
+            }    
 
-        // Check if itemId is a valid OjectId
-        if(!mongoose.Types.ObjectId.isValid(req.params.itemId)) {
-            return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
-        }
-
-        // Step 1: Check if the item exists before trying to delete it
-        return ClothingItem.findById(req.params.itemId)
-        .then((item) => {
-            if(!item) {
-                return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
+            if (!mongoose.Types.ObjectId.isValid(req.params.itemId)) {
+                return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
             }
+    
+           const item = await ClothingItem.fineById(req.params.itemId);
+           if (!item) {
+               return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
+           }
 
-            // Step 2: Now delete it, since we confirmed it exists
-            return ClothingItem.findByIdAndUpdate(
-                item._id, 
-                {$pull: {likes: req.user._id}},
-                { new: true }
-            );            
-        })
-        .then((updatedItem) => {
-            if(!updatedItem) {
-                return res.status(SERVER_ERROR).json({ message: "Failed to delete clothing item" });
-            }
+           const updatedItem = await ClothingItem.findByIdAndUpdate(
+               req.params.itemId,
+               {
+                   $pull: 
+                   {
+                       likes: req.user._id,
+                   },
+               },
+               { new: true }
+           );
 
-            return res.status(200).json(updatedItem);
-        })
-        .catch((err) => {
+           if(!updatedItem) {
+                return res.status(SERVER_ERROR).json({ message: "Failed to remove Like" });
+           }
+
+           return res.status(200).json(updatedItem);
+        }
+        catch(err) {
             if(err.name === "CastError") {
                 return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
             }
 
-            return res
-            .status(err.status || SERVER_ERROR)
-            .json({ message: err.message || "An error has occurred on the server." });
-        });            
-    };
+            return res.status(err.status || SERVER_ERROR).json({ message: err.message || "An error has occurred on the server." });
+        }
+    }
+    
 
 module.exports = { getClothingItems, getClothingItem, createClothingItem, deleteClothingItem, likeItem, dislikeItem };
