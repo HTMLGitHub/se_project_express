@@ -3,4 +3,5 @@ module.exports = {
     UNAUTHORIZED: 401, // Unauthorized
     NOT_FOUND: 404, // Resource not found
     SERVER_ERROR: 500, // Internal server error
+    CONFLICT: 409 // Resource already exists
 };

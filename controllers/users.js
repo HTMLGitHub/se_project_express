@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const User = require("../models/user");
-const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR} = require("../utils/errors");
+const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, UNAUTHORIZED} = require("../utils/errors");
+const bcrypt = require("bcryptjs");
 
 // Get all users
 const getUsers = (req, res) => 
@@ -39,18 +40,34 @@ const getUser = (req, res) => {
 
 // POST create a new user
 const createUser = (req, res) => {
-    const {name, avatar} = req.body;
-
-    return User.create({name, avatar})
-        .then((newUser) => res.status(201).json(newUser))
+    return bcrypt.hash(req.body.password, 10)
+        .then((hash) => User.create({
+            name: req.body.name,
+            avatar: req.body.avatar,
+            email: req.body.email,
+            password: hash
+        }))
+        .then((user) => res.status(201).json(user))
         .catch((err) => {
-            // Mongoose Validation Error (e.g. required field missing)
+            if(err.code === 11000) {
+                return res.status(CONFLICT).json({message: "Email already exists"});
+            }
+
             if(err.name === "ValidationError") {
                 return res.status(BAD_REQUEST).json({message: "Invalid user data"});
             }
 
             return res.status(SERVER_ERROR).json({message: err.message});
         });
+};
+
+// Login a user
+const loginUser = (req, res) => {
+    const {email, password} = req.body;
+
+    return User.findUserByCredentials(email, password)
+        .then((user) => res.status(200).json(user))
+        .catch(() => res.status(UNAUTHORIZED).json({message: "Incorrect email or password"}));
 };
 
 module.exports = {getUser, getUsers, createUser};
