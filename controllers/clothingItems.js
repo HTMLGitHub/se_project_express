@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const ClothingItem = require('../models/clothingItem');
-const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR} = require("../utils/errors");
+const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, FORBIDDEN} = require("../utils/errors");
 
 // Get all clothing items
 const getClothingItems = (req, res) =>
@@ -50,9 +50,10 @@ const createClothingItem = (req, res) => {
 
 // Delete a clothing item
 const deleteClothingItem = (req, res) => {
-    const {itemId} = req.params;
-
-    if(!req.user?._id) {
+    const itemId = req.params.itemId;
+    const userId = req.user._id;
+    
+    if(!userId) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
     }
 
@@ -61,13 +62,17 @@ const deleteClothingItem = (req, res) => {
         return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
     }
 
-
     return ClothingItem.findByIdAndDelete(itemId)
     .then((deletedItem) => {
         if(!deletedItem) {
             return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
         }
 
+        if(deletedItem.owner.toString() !== userId){
+            return res.status(FORBIDDEN).json({message: "You do not have permission to delete this item"});
+        }
+        
+        // if the user is the owner, delete the item
         return res.status(200).json({ message: "Clothing item deleted successfully" });
     })
     .catch((err) => {
