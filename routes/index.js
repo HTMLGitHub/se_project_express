@@ -1,13 +1,14 @@
 const router = require("express").Router();
-const {createUser, loginUser, getCurrentUser} = require('../controllers/users');
+const {createUser, loginUser} = require('../controllers/users');
 const itemRouter = require("./clothingItems");
+const userRouter = require("./users");
 const clothingItems = require("../controllers/clothingItems")
 const {createUser, loginUser} = require('../controllers/users');
 const auth = require('../middlewares/auth');
 
 
 // Other routes 
-router.use("/users/me", auth, getCurrentUser);
+router.use("/users", auth, userRouter);
 router.use("/items", auth, itemRouter);
 
 // public Routes for Authentication
