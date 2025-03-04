@@ -14,3 +14,6 @@ WTWR (What to Wear?): Back End
 
 # Description
 This is the back end of the WTWR site created in the last project (11). Creates a server to run the api, connects to database for storing data. (User information, clothing items (name, weather type, likes, ...)). This utilizes MongoDB database, and a linter, to flag programmign errors, bugs and styling errors. We had to make an exception for the linter to allow for the underscore at the beginning of variables '_id' <= which is being used by MongoDB. Had tests run through Postman, and then github ran tests on it. Had more difficulty with githubs tests. 
+
+# Updated Version
+Added authroization and authentication to the server. 
