@@ -14,16 +14,18 @@ const getUsers = (req, res) =>
         );
 
 // GET user by ID
-const getUser = (req, res) => {
-    if (!req.params.userId) {
+const getCurrentUser = (req, res) => {
+    const userId = req.user._id;
+
+    if (!userId) {
         return res.status(BAD_REQUEST).json({message: "User ID is required"});
     }
 
-    if(!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+    if(!mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(BAD_REQUEST).json({message: "Invalid User ID Format"});
     }
 
-    return User.findById(req.params.userId)
+    return User.findById(userId)
         .orFail(() => {throw new Error("NotFound")})
         .then((user) => res.status(200).json(user))
         
@@ -63,6 +65,32 @@ const createUser = (req, res) => {
         });
 };
 
+// Update current user's profile (name & avatar)
+const updateUser = (req, res) => {
+    const userId = req.user._id;        // Extract user Id from verified token
+    const {name, avatar} = req.body;    // Extract name and avatar from request body
+
+    // Update user with validation
+    return User.findByIdAndUpdate(
+        userId,
+        {name, avatar},
+        {new: true, runValidators: true} // Return updated user and validate input based on schema
+    )
+    .orFail(() => {throw new Error("NotFound");})
+    .then((updatedUser) => res.status(200).json(updateUser))
+    .catch((err) => {
+        if(err.name === "ValidationError") {
+            return res.status(BAD_REQUEST).json({message: "Invalid user data"});
+        }
+
+        if(err.message === "NotFound") {
+            return res.status(NOT_FOUND).json({message: "User not found"});
+        }
+
+        return res.status(SERVER_ERROR).json({message: "Internal Server Error"});
+    });
+};
+
 // Login a user
 const loginUser = (req, res) => {
     const {email, password} = req.body;
@@ -80,4 +108,4 @@ const loginUser = (req, res) => {
         .catch(() => res.status(UNAUTHORIZED).json({message: "Incorrect email or password"}));
 };
 
-module.exports = {getUser, getUsers, createUser, loginUser};
+module.exports = {getCurrentUser, getUsers, createUser, updateUser, loginUser};
