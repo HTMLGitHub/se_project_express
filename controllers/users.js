@@ -51,7 +51,11 @@ const createUser = (req, res) => {
             email: req.body.email,
             password: hash
         }))
-        .then((user) => res.status(201).json(user))
+        .then((user) => {
+            const userObj = user.toObject();    // Convert to plain object
+            delete userObj.password;            // Removes password field
+            res.status(201).json(userObj);      // Send response without the password
+        })
         .catch((err) => {
             if(err.code === 11000) {
                 return res.status(CONFLICT).json({message: "Email already exists"});
