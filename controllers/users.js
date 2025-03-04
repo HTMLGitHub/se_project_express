@@ -1,7 +1,9 @@
-const { default: mongoose } = require("mongoose");
+const  mongoose = require("mongoose");
 const User = require("../models/user");
 const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, UNAUTHORIZED} = require("../utils/errors");
 const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken'); // Import JWT library
+const {JWT_SECRET} = require("../utils/config"); // Import secret key
 
 // Get all users
 const getUsers = (req, res) => 
@@ -66,8 +68,16 @@ const loginUser = (req, res) => {
     const {email, password} = req.body;
 
     return User.findUserByCredentials(email, password)
-        .then((user) => res.status(200).json(user))
+        .then((user) => {
+            // Create JWT token
+            const token = jwt.sign({_id: user._id}, JWT_SECRET, {
+                expiresIn: "7d", // Token valid for 7 days
+            });
+            
+            // Send token to the client
+            res.status(200).json({token});
+        })
         .catch(() => res.status(UNAUTHORIZED).json({message: "Incorrect email or password"}));
 };
 
-module.exports = {getUser, getUsers, createUser};
+module.exports = {getUser, getUsers, createUser, loginUser};
