@@ -1,14 +1,18 @@
 const router = require("express").Router();
-const userRouter = require("./users");
+const {createUser, loginUser, getCurrentUser} = require('../controllers/users');
 const itemRouter = require("./clothingItems");
+const clothingItems = require("../controllers/clothingItems")
 const {createUser, loginUser} = require('../controllers/users');
+const auth = require('../middlewares/auth');
+
 
 // Other routes 
-router.use("/users", userRouter);
-router.use("/items", itemRouter);
+router.use("/users/me", auth, getCurrentUser);
+router.use("/items", auth, itemRouter);
 
 // public Routes for Authentication
 router.post("/signup", createUser); // Sign up a new user
 router.post("/signin", loginUser);  // Sign in an existing user
+router.get("/items", clothingItems.getClothingItems);
 
 module.exports = router;
