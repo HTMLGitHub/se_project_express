@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const mainRouter = require('./routes/index');
 const {SERVER_ERROR} = require('./utils/errors');
 const ResourceNotFound = require('./routes/notFound');
+const auth = require('./middlewares/auth');
 
 const {PORT = 3001} = process.env;
 const app = express();
@@ -23,12 +24,7 @@ mongoose
 
 app.use(express.json());
 
-app.use((req, res, next) => {
-    req.user = {
-        _id: '67bf183d474d88fd7542c773'
-    };
-    next();
-});
+app.use(auth);
 
 app.use("/", mainRouter);
 
