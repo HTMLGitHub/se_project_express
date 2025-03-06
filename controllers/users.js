@@ -1,8 +1,8 @@
+const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken'); // Import JWT library
 const  mongoose = require("mongoose");
 const User = require("../models/user");
 const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, UNAUTHORIZED} = require("../utils/errors");
-const bcrypt = require("bcryptjs");
-const jwt = require('jsonwebtoken'); // Import JWT library
 const {JWT_SECRET} = require("../utils/config"); // Import secret key
 
 // Get all users
@@ -43,8 +43,8 @@ const getCurrentUser = (req, res) => {
 };
 
 // POST create a new user
-const createUser = (req, res) => {
-    return bcrypt.hash(req.body.password, 10)
+const createUser = (req, res) => 
+    bcrypt.hash(req.body.password, 10)
         .then((hash) => User.create({
             name: req.body.name,
             avatar: req.body.avatar,
@@ -67,7 +67,6 @@ const createUser = (req, res) => {
 
             return res.status(SERVER_ERROR).json({message: err.message});
         });
-};
 
 // Update current user's profile (name & avatar)
 const updateUser = (req, res) => {
@@ -81,7 +80,7 @@ const updateUser = (req, res) => {
         {new: true, runValidators: true} // Return updated user and validate input based on schema
     )
     .orFail(() => {throw new Error("NotFound");})
-    .then((updatedUser) => res.status(200).json(updateUser))
+    .then(() => res.status(200).json(updateUser))
     .catch((err) => {
         if(err.name === "ValidationError") {
             return res.status(BAD_REQUEST).json({message: "Invalid user data"});

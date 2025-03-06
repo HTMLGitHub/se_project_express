@@ -50,7 +50,7 @@ const createClothingItem = (req, res) => {
 
 // Delete a clothing item
 const deleteClothingItem = (req, res) => {
-    const itemId = req.params.itemId;
+    const {itemId} = req.params.itemId;
     const userId = req.user._id;
     
     if(!userId) {

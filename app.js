@@ -1,10 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const mainRouter = require('./routes/index');
 const {SERVER_ERROR} = require('./utils/errors');
 const ResourceNotFound = require('./routes/notFound');
-const auth = require('./middlewares/auth');
-const cors = require('cors');
+
 
 const {PORT = 3001} = process.env;
 const app = express();
@@ -26,8 +26,6 @@ mongoose
 app.use(express.json());
 
 app.use(cors());
-
-app.use(auth);
 
 app.use("/", mainRouter);
 

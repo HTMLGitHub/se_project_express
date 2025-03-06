@@ -6,4 +6,4 @@ const auth = require("../middlewares/auth");
 router.get("/me", auth, getCurrentUser);
 router.patch("/me", auth, updateUser);
 
-moduel.exports = router;
+module.exports = router;
