@@ -57,14 +57,17 @@ const createUser = (req, res) =>
             res.status(201).json(userObj);      // Send response without the password
         })
         .catch((err) => {
+            console.error(`Error in createUser: \n${err.message}`)
             if(err.code === 11000) {
+                console.error(`Email exists: ${req.body.email}`);
                 return res.status(CONFLICT).json({message: "Email already exists"});
             }
 
             if(err.name === "ValidationError") {
+                console.error(`Validation Error`);
                 return res.status(BAD_REQUEST).json({message: "Invalid user data"});
             }
-
+            console.error("Server Error");
             return res.status(SERVER_ERROR).json({message: err.message});
         });
 
