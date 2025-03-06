@@ -22,6 +22,7 @@ module.exports = (req, res, next) => {
         payload = jwt.verify(token, JWT_SECRET);
     }
     catch(err) {
+        console.error("JWT Verification Error:", err.message);
         return handleAuthError(res);
     }
 

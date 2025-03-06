@@ -80,7 +80,7 @@ const updateUser = (req, res) => {
         {new: true, runValidators: true} // Return updated user and validate input based on schema
     )
     .orFail(() => {throw new Error("NotFound");})
-    .then(() => res.status(200).json(updateUser))
+    .then((updatedUser) => res.status(200).json(updatedUser))
     .catch((err) => {
         if(err.name === "ValidationError") {
             return res.status(BAD_REQUEST).json({message: "Invalid user data"});
