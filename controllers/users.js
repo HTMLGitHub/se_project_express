@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken'); // Import JWT library
 const  mongoose = require("mongoose");
 const User = require("../models/user");
-const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, UNAUTHORIZED} = require("../utils/errors");
+const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, UNAUTHORIZED, DUPLICATE_EMAIL_ERROR} = require("../utils/errors");
 const {JWT_SECRET} = require("../utils/config"); // Import secret key
 
 // Get all users
@@ -43,22 +43,32 @@ const getCurrentUser = (req, res) => {
 };
 
 // POST create a new user
-const createUser = (req, res) => 
-    bcrypt.hash(req.body.password, 10)
-        .then((hash) => User.create({
-            name: req.body.name,
-            avatar: req.body.avatar,
-            email: req.body.email,
-            password: hash
-        }))
-        .then((user) => {
-            const userObj = user.toObject();    // Convert to plain object
+const createUser = (req, res) => {
+   if(!req.body.email) {
+    return res.status(BAD_REQUEST).json({message: "Email is required"});
+   }
+
+   const user = new User({
+        name: req.body.name,
+        avatar: req.body.avatar,
+        email: req.body.email,
+        password: req.body.password,
+   });
+
+    return bcrypt.hash(user.password, 10)
+        .then((hash) => {
+            user.password = hash;
+            return user.save();
+        })
+        .then((newUser) => {
+            const userObj = newUser.toObject();    // Convert to plain object
             delete userObj.password;            // Removes password field
-            res.status(201).json(userObj);      // Send response without the password
+            return res.status(201).json(userObj);      // Send response without the password
         })
         .catch((err) => {
-            console.error(`Error in createUser: \n${err.message}`)
-            if(err.code === 11000) {
+            console.error(`Error in createUser: \n${err}\n`)
+
+            if(err.code === DUPLICATE_EMAIL_ERROR) {
                 console.error(`Email exists: ${req.body.email}`);
                 return res.status(CONFLICT).json({message: "Email already exists"});
             }
@@ -70,6 +80,7 @@ const createUser = (req, res) =>
             console.error("Server Error");
             return res.status(SERVER_ERROR).json({message: err.message});
         });
+    };
 
 // Update current user's profile (name & avatar)
 const updateUser = (req, res) => {
@@ -100,6 +111,11 @@ const updateUser = (req, res) => {
 // Login a user
 const loginUser = (req, res) => {
     const {email, password} = req.body;
+
+    if(!email || !password) {
+        console.error("Missing email or password");
+        return res.status(BAD_REQUEST).json({message: "Email and password are required"});
+    }
 
     return User.findUserByCredentials(email, password)
         .then((user) => {

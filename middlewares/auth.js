@@ -11,6 +11,7 @@ module.exports = (req, res, next) => {
     const {authorization} = req.headers;
 
     if(!authorization || !authorization.startsWith('Bearer ')) {
+        console.error(`Missing or invalid Authorization header`);
         return handleAuthError(res);
     }
 
@@ -27,6 +28,8 @@ module.exports = (req, res, next) => {
     }
 
     req.user = payload; // adding the payload to the request object
+
+    console.log(`User Authenticated: ${req.user}`);
 
     return next();
 };
