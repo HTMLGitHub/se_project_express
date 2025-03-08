@@ -50,15 +50,15 @@ const createClothingItem = (req, res) => {
 
 // Delete a clothing item
 const deleteClothingItem = (req, res) => {
-    const {itemId} = req.params.itemId;
-    const userId = req.user._id;
+    const {itemId} = req.params;
+    const userId = req.user?._id;
     
     if(!userId) {
         return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
     }
 
     // Check if itemId is a valid OjectId
-    if(!mongoose.Types.ObjectId.isValid(req.params.itemId)) {
+    if(!mongoose.Types.ObjectId.isValid(itemId)) {
         return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
     }
 
