@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const ClothingItem = require('../models/clothingItem');
 const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, FORBIDDEN} = require("../utils/errors");
-const clothingItem = require('../models/clothingItem');
 
 // Get all clothing items
 const getClothingItems = (req, res) =>
@@ -51,7 +50,7 @@ const createClothingItem = (req, res) => {
 
 // Delete a clothing item
 const deleteClothingItem = (req, res) => {
-    const itemId = req.params.itemId;
+    const {itemId} = req.params.itemId;
     const userId = req.user._id;
     
     if(!userId) {
