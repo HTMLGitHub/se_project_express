@@ -81,11 +81,7 @@ const deleteClothingItem = (req, res) => {
 
             console.log("Item deleted successfully")
             
-            .then((items)=>
-                res.status(200).json(items)
-            );
-            
-            return res.status({message: "Item deleted successfully"}) // will this work too?
+            return res.status(200).json({message: "Item deleted successfully"});
         });
     })
     .catch((err) => {
