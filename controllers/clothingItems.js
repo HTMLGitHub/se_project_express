@@ -80,7 +80,8 @@ const deleteClothingItem = (req, res) => {
             }
 
             console.log("Item deleted successfully");
-            return ClothingItem.find()// old code ->res.send({message: "Item deleted successfully"})
+            ClothingItem.find();
+            return res.send({message: "Item deleted successfully"}) // will this work too?
             .then((items)=>
                 res.status(200).json(items)
             );
