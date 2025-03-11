@@ -23,12 +23,12 @@ mongoose
     .catch(() => {
         console.error("Error connecting to wtwr database");
     });
+    
+app.use(express.json());
 
 app.use(helmet());
 
 app.use(cors());
-
-app.use(express.json());
 
 app.use("/", mainRouter);
 
