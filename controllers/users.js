@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken'); // Import JWT library
 const  mongoose = require("mongoose");
 const User = require("../models/user");
-const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, DUPLICATE_EMAIL_ERROR} = require("../utils/errors");
+const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, DUPLICATE_EMAIL_ERROR, UNAUTHORIZED} = require("../utils/errors");
 const {JWT_SECRET} = require("../utils/config"); // Import secret key
 
 // GET user by ID
@@ -119,7 +119,13 @@ const loginUser = (req, res) => {
             // Send token to the client
             res.status(200).json({token});
         })
-        .catch(() => res.status(SERVER_ERROR).json({message: "Internal Server Error"}));
+        .catch((err) => {
+            if(err.message === "Incorrect email or password") {
+                return res.status(UNAUTHORIZED).json({message: err.message});
+            }
+
+        return res.status(SERVER_ERROR).json({message: "Internal Server Error"})
+        });
 };
 
 module.exports = {getCurrentUser, createUser, updateUser, loginUser};

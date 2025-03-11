@@ -80,7 +80,6 @@ const deleteClothingItem = (req, res) => {
             }
 
             console.log("Item deleted successfully");
-            //ClothingItem.find();
             return res.status({message: "Item deleted successfully"}) // will this work too?
             .then((items)=>
                 res.status(200).json(items)
