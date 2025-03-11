@@ -62,15 +62,27 @@ const deleteClothingItem = (req, res) => {
         return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
     }
 
-    return ClothingItem.findOneAndDelete({_id: itemId, owner: userId})
+    return ClothingItem.findById(itemId)
     .then((item) => {
         if(!item) {
-            return res.status(NOT_FOUND).json({message: "Clothing item not found, or you do not have permission to delete this item"});
+            return res.status(NOT_FOUND).json({message: "Clothing item not found"});
         }
 
-        console.log("Item deleted successfully")
+        if(item.owner.toString() !== userId) {
+            return res.status(FORBIDDEN).json({message: "You do not have permission to delete this item"});
+        }
+
+        return ClothingItem.findByIdAndDelete(itemId)
+        .then((deletedItem)=> {
+            if(!deletedItem) {
+                console.error("Failed to delete item");
+                return res.status(NOT_FOUND).json({message: "Failed to delete item"})
+            }
+
+            console.log("Item deleted successfully");
             
-        return res.status(200).json({message: "Item deleted successfully"});
+            return res.status(200).json({message: "Item deleted successfully"});
+        });
     })
     .catch((err) => {
         console.error("Error deleting item", err.message);
