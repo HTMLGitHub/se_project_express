@@ -76,6 +76,7 @@ const deleteClothingItem = (req, res) => {
         .then((deletedItem)=> {
             if(!deletedItem) {
                 console.error("Failed to delete item");
+                ClothingItem.find();
                 return res.status(NOT_FOUND).json({message: "Failed to delete item"})
             }
 
