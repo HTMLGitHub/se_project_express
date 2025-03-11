@@ -9,10 +9,9 @@ const auth = require('../middlewares/auth');
 // public Routes for Authentication
 router.post("/signup", createUser); // Sign up a new user
 router.post("/signin", loginUser);  // Sign in an existing user
-router.get("/items", clothingItems.getClothingItems);
 
 // Other routes 
-router.use("/users", auth, userRouter);
-router.use("/items", auth, itemRouter);
+router.use("/users", userRouter);
+router.use("/items", itemRouter);
 
 module.exports = router;

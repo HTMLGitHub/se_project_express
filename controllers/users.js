@@ -5,14 +5,6 @@ const User = require("../models/user");
 const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, UNAUTHORIZED, DUPLICATE_EMAIL_ERROR} = require("../utils/errors");
 const {JWT_SECRET} = require("../utils/config"); // Import secret key
 
-// Get all users
-const getUsers = (req, res) => 
-    User.find({})
-        .then((users) => res.status(200).json(users))
-        .catch(() => 
-            res.status(SERVER_ERROR).json({ message: "Internal Server Error" })
-        );
-
 // GET user by ID
 const getCurrentUser = (req, res) => {
     const userId = req.user._id;
@@ -127,7 +119,7 @@ const loginUser = (req, res) => {
             // Send token to the client
             res.status(200).json({token});
         })
-        .catch(() => res.status(UNAUTHORIZED).json({message: "Incorrect email or password"}));
+        .catch(() => res.status(SERVER_ERROR).json({message: "Internal Server Error"}));
 };
 
-module.exports = {getCurrentUser, getUsers, createUser, updateUser, loginUser};
+module.exports = {getCurrentUser, createUser, updateUser, loginUser};

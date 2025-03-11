@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
 const mainRouter = require('./routes/index');
 const {SERVER_ERROR} = require('./utils/errors');
 const ResourceNotFound = require('./routes/notFound');
@@ -23,9 +24,11 @@ mongoose
         console.error("Error connecting to wtwr database");
     });
 
-app.use(express.json());
+app.use(helmet());
 
 app.use(cors());
+
+app.use(express.json());
 
 app.use("/", mainRouter);
 
