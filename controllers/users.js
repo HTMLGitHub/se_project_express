@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken'); // Import JWT library
 const  mongoose = require("mongoose");
 const User = require("../models/user");
-const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, UNAUTHORIZED, DUPLICATE_EMAIL_ERROR} = require("../utils/errors");
+const {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, CONFLICT, DUPLICATE_EMAIL_ERROR} = require("../utils/errors");
 const {JWT_SECRET} = require("../utils/config"); // Import secret key
 
 // GET user by ID
