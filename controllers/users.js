@@ -36,6 +36,8 @@ const getCurrentUser = (req, res) => {
 
 // POST create a new user
 const createUser = (req, res) => {
+    console.error("Creating user");
+    console.error(req.body);
    if(!req.body.email) {
     return res.status(BAD_REQUEST).json({message: "Email is required"});
    }
