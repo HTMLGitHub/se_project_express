@@ -2,34 +2,33 @@ const jwt = require("jsonwebtoken");
 const {JWT_SECRET} = require("../utils/config");
 const {UNAUTHORIZED} = require("../utils/errors")
 
-const handleAuthError = (res) => res.status(UNAUTHORIZED).send({message: "Authorization Error"});
-
-
 const extractBearerToken = (header) => header.replace('Bearer ', '');
 
 module.exports = (req, res, next) => {
     const {authorization} = req.headers;
 
     if(!authorization || !authorization.startsWith('Bearer ')) {
-        console.error(`Missing or invalid Authorization header`);
-        return handleAuthError(res);
+        const err = new Error("Authorization Error");
+        err.statusCode = UNAUTHORIZED;
+
+        console.error(`Error: ${err.message}`);
+
+        return next(err); // Send to centralized error handler        
     }
 
     const token = extractBearerToken(authorization);
 
-    let payload;
-
     try {
-        payload = jwt.verify(token, JWT_SECRET);
+        const payload = jwt.verify(token, JWT_SECRET);
+        req.user = payload;
+
+        console.log(`User Authenticated: ${req.user}`);
+
+        return next(); // Proceed to the next middleware or route handler
+    } catch(err) {
+        err.statusCode = UNAUTHORIZED;
+        console.error(`Error: ${err.message}`);
+
+        return next(err); // Send to centralized error handler
     }
-    catch(err) {
-        console.error("JWT Verification Error:", err.message);
-        return handleAuthError(res);
-    }
-
-    req.user = payload; // adding the payload to the request object
-
-    console.log(`User Authenticated: ${req.user}`);
-
-    return next();
 };

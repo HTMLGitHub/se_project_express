@@ -1,19 +1,114 @@
 # WTWR (What to Wear?): Back End
-The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
-## Running the Project
-`npm run start` — to launch the server 
 
-`npm run dev` — to launch the server with the hot reload feature
+The back-end project powers the WTWR application server. It handles API routes, user authentication, and connects to a MongoDB database. You’ll gain experience working with databases, setting up security, deploying apps to a remote machine, and using Docker.
 
-### Testing
-Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+---
+
+## 🔧 Running the Project
+
+```bash
+npm install
+```
+
+To start the server:
+
+```bash
+npm run start
+```
+
+To start the server with hot reload (dev mode):
+
+```bash
+npm run dev
+```
+
+---
+
+## 💪 Testing Instructions
+
+Before committing, edit the `sprint.txt` file in the root folder.  
+It should contain the sprint number you're currently on. Example:
+
+```
+12
+```
+
+---
+
+## 📦 MongoDB Setup (Using Docker)
+
+Instead of installing MongoDB directly, this project uses **Docker**:
+
+```bash
+sudo docker run -d \
+  --name mongodb \
+  -p 27017:27017 \
+  mongo:6.0
+```
+
+This launches MongoDB locally on port `27017` without username/password authentication.
+
+---
+
+### Accessing MongoDB Shell
+
+To enter the MongoDB shell (like Compass CLI):
+
+```bash
+sudo docker exec -it mongodb mongosh
 
 
-# Project Name: 
-WTWR (What to Wear?): Back End
+## ⚙️ Environment Variables
 
-# Description
-This is the back end of the WTWR site created in the last project (11). Creates a server to run the api, connects to database for storing data. (User information, clothing items (name, weather type, likes, ...)). This utilizes MongoDB database, and a linter, to flag programmign errors, bugs and styling errors. We had to make an exception for the linter to allow for the underscore at the beginning of variables '_id' <= which is being used by MongoDB. Had tests run through Postman, and then github ran tests on it. Had more difficulty with githubs tests. 
+Create a `.env` file in the root directory with:
 
-# Updated Version
-Added authroization and authentication to the server. 
+```env
+MONGO_URI=mongodb://127.0.0.1:27017/wtwr_db
+```
+
+This enables the server to connect to the MongoDB instance (Docker or local).
+
+---
+
+## 🧐 Project Description
+
+This is the back end of the WTWR site created in the previous project. It:
+
+- Sets up an Express server to run the API
+- Connects to a MongoDB database to store user info and clothing items
+- Implements authentication and authorization
+- Uses a linter to flag code issues and enforce styling conventions
+- Includes Postman tests and GitHub test validation
+
+MongoDB’s `_id` field requires disabling a linter rule (`no-underscore-dangle`) to prevent false positives.
+
+---
+
+## 🔐 Authorization & Authentication (Update)
+
+This version includes:
+
+- User registration and login using JWT tokens
+- Protected routes for accessing personal data and managing clothing items
+- Secure password hashing with bcrypt
+
+---
+
+## 🌍 Hosting Info
+
+The backend server is hosted on a **Google Cloud Virtual Machine**.
+
+- MongoDB runs in a Docker container
+- The server listens on **port 3001**
+- SSH and firewall are configured to allow external access for testing
+
+---
+
+## ✅ Summary
+
+- Node.js v20
+- Express server
+- MongoDB via Docker
+- Deployed on Google Cloud VM
+- JWT-based auth
+- Secure and linted backend API

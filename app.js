@@ -3,12 +3,14 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const mainRouter = require('./routes/index');
-const {SERVER_ERROR} = require('./utils/errors');
+const errorHandler = require('./middlewares/error-handler');
+const {errors} = require('celebrate');
 const ResourceNotFound = require('./routes/notFound');
-
-
+const {requestLogger, errorLogger} = require('./middlewares/logger');
 const {PORT = 3001} = process.env;
 const app = express();
+
+require('dotenv').config(); // Load environment variables from .env file
 
 app.use(cors({
     origin: 'http://localhost:3000',
@@ -34,19 +36,20 @@ app.use(express.json());
 
 app.use(helmet());
 
+app.use(requestLogger);
+
 app.use("/", mainRouter);
 
 app.use(ResourceNotFound);
 
-// Global error handler (Fixes 500 HTML response)
-app.use((err, req, res, next) => {
-    res.status(err.status || SERVER_ERROR).json(
-        {
-            message: err.message || "Internal Server Error"
-        });
+// enabling the error logger
+app.use(errorLogger);
 
-        next();
-});
+// Celebrate error handler
+app.use(errors());
+
+// Error handler middleware
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log("Up and running");
