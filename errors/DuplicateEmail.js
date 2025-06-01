@@ -4,3 +4,5 @@ class DupLicateEmail extends Error {
     this.statusCode = 11000;
   }
 }
+
+module.exports = DupLicateEmail;
