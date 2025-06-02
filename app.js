@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables from .env file
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,10 +9,11 @@ const errorHandler = require('./middlewares/error-handler');
 const {errors} = require('celebrate');
 const ResourceNotFound = require('./routes/notFound');
 const {requestLogger, errorLogger} = require('./middlewares/logger');
-const {PORT = 3001} = process.env;
+
+const {PORT} = require('./config');
 const app = express();
 
-require('dotenv').config(); // Load environment variables from .env file
+
 
 app.use(cors({
     origin: 'http://localhost:3000',
@@ -27,6 +30,7 @@ mongoose
     })
     .then(() => {
         console.log("Connected to wtwr database");
+        console.log("Database URI:", process.env.MONGO_URI);
     })
     .catch(() => {
         console.error("Error connecting to wtwr database");
