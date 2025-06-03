@@ -112,3 +112,8 @@ The backend server is hosted on a **Google Cloud Virtual Machine**.
 - Deployed on Google Cloud VM
 - JWT-based auth
 - Secure and linted backend API
+
+## Deployment
+
+- Frontend: https://www.whattowear.developer.li
+- Backend API: https://api.developer.li
