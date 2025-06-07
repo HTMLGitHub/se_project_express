@@ -1,16 +1,18 @@
+/* eslint-disable no-console */
 require('dotenv').config(); // Load environment variables from .env file
 
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
+const {errors} = require('celebrate');
 const mainRouter = require('./routes/index');
 const errorHandler = require('./middlewares/error-handler');
-const {errors} = require('celebrate');
 const ResourceNotFound = require('./routes/notFound');
 const {requestLogger, errorLogger} = require('./middlewares/logger');
-
+const rateLimiter = require('./middlewares/rateLimiter'); // Import rate limiter middleware
 const {PORT} = require('./config');
+
 const app = express();
 
 
@@ -23,7 +25,7 @@ app.use(cors({
 
 // Connect to the wtwr database
 mongoose
-    .connect(process.env.MONGO_URI,
+    .connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/wtwr_db",
     { 
         useNewUrlParser: true, 
         useUnifiedTopology: true 
@@ -37,7 +39,7 @@ mongoose
     });
     
 app.use(express.json());
-
+app.use(rateLimiter); // Apply rate limiting middleware
 app.use(helmet());
 
 app.use(requestLogger);

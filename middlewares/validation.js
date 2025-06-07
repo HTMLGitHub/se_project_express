@@ -1,9 +1,7 @@
 const {Joi, celebrate} = require('celebrate');
 const validator = require('validator');
 
-const validateUrl = (value, helpers) => {
-    return validator.isURL(value) ? value : helpers.error('string.uri');
-}
+const validateUrl = ((value, helpers) => validator.isURL(value) ? value : helpers.error('string.uri'));
 
 const validateClothingItem = celebrate({
     body: Joi.object().keys({

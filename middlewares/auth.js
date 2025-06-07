@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 const jwt = require("jsonwebtoken");
-const {JWT_SECRET} = require("../utils/config");
-const {UNAUTHORIZED} = require("../utils/errors")
+const {JWT_SECRET} = require("..config");
+const UNAUTHORIZEDERRROR = require("../errors/Unauthorized");
 
 const extractBearerToken = (header) => header.replace('Bearer ', '');
 
@@ -8,8 +9,7 @@ module.exports = (req, res, next) => {
     const {authorization} = req.headers;
 
     if(!authorization || !authorization.startsWith('Bearer ')) {
-        const err = new Error("Authorization Error");
-        err.statusCode = UNAUTHORIZED;
+        const err = new UNAUTHORIZEDERRROR("Authorization Error");
 
         console.error(`Error: ${err.message}`);
 
@@ -26,9 +26,8 @@ module.exports = (req, res, next) => {
 
         return next(); // Proceed to the next middleware or route handler
     } catch(err) {
-        err.statusCode = UNAUTHORIZED;
         console.error(`Error: ${err.message}`);
 
-        return next(err); // Send to centralized error handler
+        return next(new UNAUTHORIZEDERRROR("Invalid or expired token")); // Send to centralized error handler
     }
 };

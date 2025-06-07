@@ -1,37 +1,37 @@
+/* eslint-disable no-console */
 const mongoose = require('mongoose');
 const ClothingItem = require('../models/clothingItem');
-const {UNAUTHORIZED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR, FORBIDDEN} = require("../utils/errors");
+const BADREQUEST = require("../errors/BadRequest");
+const NOTFOUND = require("../errors/NotFound");
+const FORBIDDEN = require("../errors/Forbidden");
+const SERVERERROR = require("../errors/ServerError");
+const UNAUTHORIZED = require("../errors/Unauthorized");
+
 
 // Get all clothing items
-const getClothingItems = (req, res) =>
+const getClothingItems = (req, res, next) =>
     ClothingItem.find({})
     .then((clothing) => res.status(200).json(clothing))
-    .catch(() => 
-        res.status(SERVER_ERROR).json({ message: "An error has occurred on the server."})
-    );
+    .catch(() => {
+        next(new SERVERERROR("An error has occurred on the server."));
+    });
 
 // Get a clothing item by ID
-const getClothingItem = (req, res) =>
+const getClothingItem = (req, res, next) =>
     ClothingItem.findById(req.params.itemId)
     .orFail(() => {throw new Error("NotFound")})
     .then((clothing) => res.status(200).json(clothing))
     .catch((err) => {
-        if(err.name === "CastError") {
-            return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
-        }
+        if(err.name === "CastError") { next(new BADREQUEST("Invalid Clothing Item ID Format" )); }
 
-        if(err.message === "NotFound") {
-            return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
-        }
+        if(err.message === "NotFound") { next(new NOTFOUND("Clothing item not found")); }
 
-        return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
+        next(new SERVERERROR("An error has occurred on the server."));
     });
 
 // Create a new clothing item
-const createClothingItem = (req, res) => {
-    if(!req.user?._id) {
-        return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
-    }
+const createClothingItem = (req, res, next) => {
+    if(!req.user?._id) { next(new UNAUTHORIZED("Unauthorized"));}
 
     const {name, weather, imageUrl} = req.body;
     
@@ -40,11 +40,9 @@ const createClothingItem = (req, res) => {
     return newClothes.save()
     .then((newItem) => res.status(201).json(newItem))
     .catch((err) => {
-        if(err.name === "ValidationError") {
-            return res.status(BAD_REQUEST).json({message: "Invalid clothing item data"});
-        }
+        if(err.name === "ValidationError") { next(new BADREQUEST("Invalid clothing item data")); }
 
-        return res.status(SERVER_ERROR).json({message: err.message});
+        next(new SERVERERROR(err.message));
     });
 }
 
@@ -53,30 +51,24 @@ const deleteClothingItem = (req, res) => {
     const {itemId} = req.params;
     const userId = req.user?._id;
     
-    if(!userId) {
-        return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
-    }
+    if(!userId) { next(new UNAUTHORIZED("Unauthorized")); }
 
     // Check if itemId is a valid OjectId
-    if(!mongoose.Types.ObjectId.isValid(itemId)) {
-        return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
-    }
+    if(!mongoose.Types.ObjectId.isValid(itemId)) { next(new BADREQUEST("Invalid Clothing Item ID Format")); }
 
     return ClothingItem.findById(itemId)
     .then((item) => {
         if(!item) {
-            return res.status(NOT_FOUND).json({message: "Clothing item not found"});
+            next (new NOTFOUND("Clothing item not found"));
         }
 
-        if(item.owner.toString() !== userId) {
-            return res.status(FORBIDDEN).json({message: "You do not have permission to delete this item"});
-        }
-
+        if(item.owner.toString() !== userId) { next (new FORBIDDEN("You do not have permission to delete this item")); }
+            
         return ClothingItem.findByIdAndDelete(itemId)
         .then((deletedItem)=> {
             if(!deletedItem) {
                 console.error("Failed to delete item");
-                return res.status(NOT_FOUND).json({message: "Failed to delete item"})
+                next(new NotFound("Failed to delete item"));
             }
 
             console.log("Item deleted successfully");
@@ -86,15 +78,13 @@ const deleteClothingItem = (req, res) => {
     })
     .catch((err) => {
         console.error("Error deleting item", err.message);
-        return res.status(SERVER_ERROR).json({message: "Internal Server Error"});
+        next(new SERVERERROR("Internal Server Error"));
     });
 };
 
 // Like a clothing item
 const likeItem = (req, res) => {
-    if(!req.user?._id) {
-        return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
-    }    
+    if(!req.user?._id) { next(new UNAUTHORIZED("Unauthorized")); }    
 
     return ClothingItem.findByIdAndUpdate(
         req.params.itemId, 
@@ -109,33 +99,25 @@ const likeItem = (req, res) => {
         .orFail(() => {throw new Error("NotFound")})
         .then((updatedItem) => res.status(200).json(updatedItem))
         .catch((err) => {
-            if(err.name === "CastError") {
-                return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
-            }
+            if(err.name === "CastError") { next(new BADREQUEST("Invalid Clothing Item ID Format")); }
+            
+            if(err.message === "NotFound") { next(new NOTFOUND("Clothing item not found")); }
 
-            if(err.message === "NotFound") {
-                return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
-            }
-
-            return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
+            next(new SERVERERROR("An error has occurred on the server."));
         });
     };
 
     const dislikeItem = async (req, res) => {
         try {
-            if(!req.user?._id) {
-                return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
-            }    
-
+            if(!req.user?._id) { next(new UNAUTHORIZED("Unauthorized")); }
+                
             if (!mongoose.Types.ObjectId.isValid(req.params.itemId)) {
-                return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
+                next(new BADREQUEST("Invalid Clothing Item ID Format")); 
             }
     
            const item = await ClothingItem.findById(req.params.itemId);
-           if (!item) {
-               return res.status(NOT_FOUND).json({ message: "Clothing item not found" });
-           }
-
+           if (!item) { next(new NOTFOUND("Clothing item not found")); }
+               
            const updatedItem = await ClothingItem.findByIdAndUpdate(
                req.params.itemId,
                {
@@ -147,18 +129,14 @@ const likeItem = (req, res) => {
                { new: true }
            );
 
-           if(!updatedItem) {
-                return res.status(SERVER_ERROR).json({ message: "Failed to remove Like" });
-           }
+           if(!updatedItem) { next(new SERVERERROR("Failed to remove Like")); }
 
            return res.status(200).json(updatedItem);
         }
         catch(err) {
-            if(err.name === "CastError") {
-                return res.status(BAD_REQUEST).json({ message: "Invalid Clothing Item ID Format" });
-            }
+            if(err.name === "CastError") { next(new BADREQUEST("Invalid Clothing Item ID Format")); }
 
-            return res.status(err.status || SERVER_ERROR).json({ message: err.message || "An error has occurred on the server." });
+            next(err);
         }
     }
     

@@ -1,8 +1,8 @@
+/* eslint-disable no-console */
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken'); // Import JWT library
 const  mongoose = require("mongoose");
 const User = require("../models/user");
-const {DUPLICATE_EMAIL_ERROR} = require("../utils/errors");
 const NotFound = require("../errors/NotFound");
 const BadRequest = require("../errors/BadRequest");
 const DuplicateEmail = require("../errors/DuplicateEmail");
@@ -60,7 +60,7 @@ const createUser = (req, res, next) => {
         .catch((err) => {
             console.error(`Error in createUser: \n${err}\n`)
 
-            if(err.code === DUPLICATE_EMAIL_ERROR) {
+            if(err.code === 11000) {
                 console.error(`Email exists: ${req.body.email}`);
                 return next(new DuplicateEmail("Email already exists"));
             }
