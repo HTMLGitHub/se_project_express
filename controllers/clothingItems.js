@@ -47,7 +47,7 @@ const createClothingItem = (req, res, next) => {
 }
 
 // Delete a clothing item
-const deleteClothingItem = (req, res) => {
+const deleteClothingItem = (req, res, next) => {
     const {itemId} = req.params;
     const userId = req.user?._id;
     
@@ -59,16 +59,16 @@ const deleteClothingItem = (req, res) => {
     return ClothingItem.findById(itemId)
     .then((item) => {
         if(!item) {
-            next (new NOTFOUND("Clothing item not found"));
+            return next (new NOTFOUND("Clothing item not found"));
         }
 
-        if(item.owner.toString() !== userId) { next (new FORBIDDEN("You do not have permission to delete this item")); }
+        if(item.owner.toString() !== userId) { return next (new FORBIDDEN("You do not have permission to delete this item")); }
             
         return ClothingItem.findByIdAndDelete(itemId)
         .then((deletedItem)=> {
             if(!deletedItem) {
                 console.error("Failed to delete item");
-                next(new NotFound("Failed to delete item"));
+                next(new NOTFOUND("Failed to delete item"));
             }
 
             console.log("Item deleted successfully");
@@ -83,7 +83,7 @@ const deleteClothingItem = (req, res) => {
 };
 
 // Like a clothing item
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
     if(!req.user?._id) { next(new UNAUTHORIZED("Unauthorized")); }    
 
     return ClothingItem.findByIdAndUpdate(
@@ -107,16 +107,16 @@ const likeItem = (req, res) => {
         });
     };
 
-    const dislikeItem = async (req, res) => {
+    const dislikeItem = async (req, res, next) => {
         try {
-            if(!req.user?._id) { next(new UNAUTHORIZED("Unauthorized")); }
+            if(!req.user?._id) { return next(new UNAUTHORIZED("Unauthorized")); }
                 
             if (!mongoose.Types.ObjectId.isValid(req.params.itemId)) {
-                next(new BADREQUEST("Invalid Clothing Item ID Format")); 
+                return next(new BADREQUEST("Invalid Clothing Item ID Format")); 
             }
     
            const item = await ClothingItem.findById(req.params.itemId);
-           if (!item) { next(new NOTFOUND("Clothing item not found")); }
+           if (!item) { return next(new NOTFOUND("Clothing item not found")); }
                
            const updatedItem = await ClothingItem.findByIdAndUpdate(
                req.params.itemId,
@@ -129,14 +129,14 @@ const likeItem = (req, res) => {
                { new: true }
            );
 
-           if(!updatedItem) { next(new SERVERERROR("Failed to remove Like")); }
+           if(!updatedItem) { return next(new SERVERERROR("Failed to remove Like")); }
 
            return res.status(200).json(updatedItem);
         }
         catch(err) {
-            if(err.name === "CastError") { next(new BADREQUEST("Invalid Clothing Item ID Format")); }
+            if(err.name === "CastError") { return next(new BADREQUEST("Invalid Clothing Item ID Format")); }
 
-            next(err);
+            return next(err);
         }
     }
     

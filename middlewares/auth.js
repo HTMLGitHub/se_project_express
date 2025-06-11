@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 const jwt = require("jsonwebtoken");
-const {JWT_SECRET} = require("..config");
+const {JWT_SECRET} = require("../config");
 const UNAUTHORIZEDERRROR = require("../errors/Unauthorized");
 
 const extractBearerToken = (header) => header.replace('Bearer ', '');

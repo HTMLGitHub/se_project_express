@@ -7,7 +7,7 @@ const NotFound = require("../errors/NotFound");
 const BadRequest = require("../errors/BadRequest");
 const DuplicateEmail = require("../errors/DuplicateEmail");
 const Unauthorized = require("../errors/Unauthorized");
-const {JWT_SECRET} = require("../utils/config"); // Import secret key
+const {JWT_SECRET} = require("../config"); // Import secret key
 
 // GET user by ID
 const getCurrentUser = (req, res, next) => {
